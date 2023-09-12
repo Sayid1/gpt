@@ -19,7 +19,7 @@ const count = ref(0)
         <p class="text-sm">回答问题，高效便捷地帮助人们获取信息、知识和灵感</p>
       </div>
     </div>
-    <div class="prompt_wrapper">
+    <!-- <div class="prompt_wrapper">
       <div class="welcome_prompt">
         <div class="top">
           <div class="title">推荐助手 <span>使用星火助手，场景任务一键搞定</span></div>
@@ -29,7 +29,7 @@ const count = ref(0)
           
         </div>
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -48,7 +48,7 @@ const count = ref(0)
     box-sizing: border-box;
     margin: 0 auto 56px;
     padding: 25px 24px;
-    width: 950px;
+    width: 100%;
   }
   @media screen and (max-width: 1300px) {
     .welcome_prompt {
@@ -85,12 +85,12 @@ const count = ref(0)
   display: flex;
   font-size: 15px;
   height: auto;
-  left: -22px;
+  // left: -22px;
   margin: 0 auto;
   min-height: 43px;
   padding-top: 42px;
   position: relative;
-  width: 996px;
+  width: 95%;
   .user_image {
     border-radius: 13px;
     flex-shrink: 0;
@@ -106,7 +106,7 @@ const count = ref(0)
     margin-bottom: 56px;
     padding: 25px 38px;
     position: relative;
-    width: 950px;
+    width: 100%;
     img {
       height: auto;
       position: absolute;
@@ -124,10 +124,10 @@ const count = ref(0)
     }
   }
 }
-@media screen and (max-width: 1300px) {
-  .chat_content {
-    position: relative;
-    width: 826px;
-  }
-}
+// @media screen and (max-width: 1300px) {
+//   .chat_content {
+//     position: relative;
+//     width: 826px;
+//   }
+// }
 </style>
