@@ -6,11 +6,13 @@ import helperList from './components/helper-list.vue'
 import historyChat from './components/history-chat.vue'
 import chatItem from './components/chat.vue'
 import chatInput from './components/chat-input.vue'
+// import { genChatId } from './utils'
 
+// genChatId()
 const sidebarCollapse = ref(false)
 const activeTab = ref('history-chat')
 const store = useGlobalState()
-
+console.log('store.msgRecord.value', store.msgRecord.value)
 </script>
 
 <template>
@@ -46,8 +48,8 @@ const store = useGlobalState()
       </div>
 
       <div class="silder-content">
-        <!-- <helper-list /> -->
-        <history-chat />
+        <helper-list v-show="activeTab !== 'history-chat'" />
+        <history-chat v-show="activeTab === 'history-chat'" />
       </div>
       <div v-show="!sidebarCollapse" class="absolute bottom-4 inset-x-0 w-[266px] h-[102px] py-2">
         <div class="text-gray-600 pl-4 mb-4">
@@ -69,8 +71,8 @@ const store = useGlobalState()
       <div class="chat_window">
         
         <div class="out_wrap">
-          <div v-if="store.msgRecord.value.length" class="mt-10">
-            <chat-item :record="record" v-for="(record, i) in store.msgRecord.value" :key="i" />
+          <div v-if="store.msgRecord.value?.length" class="mt-10">
+            <chat-item :record="record" :last="i === store.msgRecord.value.length - 1" v-for="(record, i) in store.msgRecord.value" :key="i" />
           </div>
           <div class="chat_content_wrapper" v-else>
             <welcome />

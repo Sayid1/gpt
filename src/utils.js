@@ -2,46 +2,63 @@ import { useStorage, useFetch, useWebSocket } from '@vueuse/core'
 import { ref, watch, reactive, watchEffect } from 'vue'
 import { useGlobalState } from './store'
 
+export function genChatId() {
+  const id = +new Date() + ''
+  store.activeChatId.value = id
+  return id
+}
+
 const store = useGlobalState()
 /**
- * @param { Object } record  { id: string, record: { msg: strig, type: bot | user } }
+ * @param { Object } record  {  record: [{ msg: strig, type: assistant | user }] | string }
  */
 export function useChatCache() {
   const chat = useStorage('history-chat', {}, localStorage)
   function set(id, record) {
-    if (!chat.value[id]) {
-      console.log(chat.value, id)
-      console.log('333')
-      chat.value[id] = [record]
-    } else if (chat.value[id].length === 2) {
-      chat.value[id].splice(0, 2, record)
-      // chat.value[id][0] = record
-    } else if (chat.value[id].length === 1) {
-  
-      console.log('44')
-      chat.value[id].push(record)
+    // 对话标题
+    if (typeof record === 'string' ) {
+      if (!chat.value[id])
+        chat.value[id] = { title: record }
+    } else {
+      if (chat.value[id].chatRecords) {
+        if (chat.value[id].chatRecords.length === 6) {
+          chat.value[id].chatRecords.splice(0, 2)
+        }
+        chat.value[id].chatRecords.push(...record)
+      } else {
+        chat.value[id].chatRecords = record
+      }
     }
   }
   return { chat, set }
-  // console.log(val)
 }
+
+const { set, chat } = useChatCache()
 
 export function useSendMsg() {
   const { isFetching, data, error, abort, statusCode, post } = useFetch('http://8.129.170.108/api/xfws', { immediate: false })
 
   function fetch(id, userInput) {
     post().json().execute().then(() => {
-      ws(id, data.value.data, [{
-        "role": "user",
-        "content":  userInput
-      }])
+      ws(id, data.value.data, userInput)
     })
   }
   return { fetch, isFetching, abort, data }
 }
 
-function ws(id, path, content) {
-  const { set } = useChatCache()
+function ws(id, path, userInput) {
+
+  const chatRecords = chat.value[id].chatRecords
+  let text = []
+  if (chatRecords) {
+    text = chatRecords.slice(0, 6)
+    text.push({ "role": "user", "content":  userInput })
+    // text = content.splice(content.length - 1, 1)
+  } else {
+    text = [{ "role": "user", "content":  userInput }]
+  }
+  console.log(JSON.stringify(text))
+  
   var textresult = ''
   let flag = true
   var i = 0
@@ -59,7 +76,7 @@ function ws(id, path, content) {
           var text = textresult.slice(0, i)
       //     var mark = marked.parse(text);
           store.msgRecord.value.splice(store.msgRecord.value.length - 1, 1, {
-            type: 'bot',
+            type: 'assistant',
             msg: text
           })
           var textOld = textresult.slice(0, i-1)
@@ -90,10 +107,13 @@ function ws(id, path, content) {
     },
     onDisconnected() {
       completed = textresult
-      set(id, {
-        type: 'bot',
+      set(id, [{
+        type: 'user',
+        msg: userInput
+      }, {
+        type: 'assistant',
         msg: textresult
-      })
+      }])
     }
   })
   watch(status, () => {
@@ -101,7 +121,7 @@ function ws(id, path, content) {
       var params = {
         "header": { "app_id": "5fcf2c5f", "uid": new Date().getTime() + "" },
         "parameter": { "chat": { "domain": "generalv2", "max_tokens":4096 } },
-        "payload": { "message": { "text": content } }
+        "payload": { "message": { "text": text} }
       }
       send(JSON.stringify(params))
 

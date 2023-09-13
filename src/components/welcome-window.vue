@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useGlobalState } from '../store'
-import { useSendMsg, useChatCache } from '../utils'
+import { useSendMsg, useChatCache, genChatId } from '../utils'
 
 const commonQuestions = [
   '给老板10个理由帮我升职加薪',
@@ -14,25 +14,26 @@ const commonQuestions = [
 
 const store = useGlobalState()
 const { set } = useChatCache()
-const { fetch, isFetching, abort, data } = useSendMsg()
-const id = +new Date()
+const { fetch, abort, data } = useSendMsg()
 
 function clickQuestion(q) {
+  const id = genChatId()
+  
+  // 缓存对话的标题
+  set(id, q)
+  // 请求对话
   fetch(id, q)
-  // if (store.msgRecord.value.length === 0) {
-    set(id, {
-        type: 'user',
-        msg: q
-    })
-  // }
+  // 设置当前的对话消息记录
   store.msgRecord.value.push({
     type: 'user',
     msg: q
   }, {
-    type: 'bot',
+    type: 'assistant',
     msg: '',
     status: 'loading',
   })
+  // 设置侧边栏激活的对话id
+  store.activeChatId.value = id
 }
 </script>
 

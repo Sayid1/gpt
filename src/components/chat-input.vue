@@ -2,12 +2,13 @@
 import { v4 } from 'uuid'
 import { ref, watch } from 'vue'
 import { useGlobalState } from '../store'
-import { useSendMsg, useChatCache } from '../utils'
+import { useSendMsg, useChatCache, genChatId } from '../utils'
 
 const store = useGlobalState()
 const { set } = useChatCache()
 const showPrompt = ref(false)
 const textareaRef = ref(null)
+
 
 watch(store.msg, newInput => {
   if (newInput === '/') {
@@ -26,25 +27,27 @@ const promptList = [
   { title: '演讲稿', text: '现在你准备参加[时间的重量]的主题演讲，给出一份800字演讲稿，要求文字简洁、情真意切' },
 ]
 
-const id = +new Date()
-
 const { fetch, isFetching, abort, data } = useSendMsg()
+
 function  sendMsg() {
+  let id = store.activeChatId.value
+  if (!id) id = genChatId()
+  // 缓存对话的标题
+  set(id, store.msg.value)
+  // 请求对话
   fetch(id, store.msg.value)
-  // if (store.msgRecord.value.length === 0) {
-    set(id, {
-        type: 'user',
-        msg: store.msg.value
-    })
-  // }
+  // 设置当前的对话消息记录
   store.msgRecord.value.push({
     type: 'user',
     msg: store.msg.value
   }, {
-    type: 'bot',
+    type: 'assistant',
     msg: '',
     status: 'loading',
   })
+  // 设置侧边栏激活的对话id
+  store.activeChatId.value = id
+  // 重置输入框
   store.msg.value = ''
 }
 
