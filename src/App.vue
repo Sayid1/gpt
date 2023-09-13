@@ -1,9 +1,15 @@
 <script setup>
-import welcome from './components/welcome-window/index.vue'
 import { ref } from 'vue'
+import { useGlobalState } from './store'
+import welcome from './components/welcome-window.vue'
+import helperList from './components/helper-list.vue'
+import historyChat from './components/history-chat.vue'
+import chatItem from './components/chat.vue'
+import chatInput from './components/chat-input.vue'
+
 const sidebarCollapse = ref(false)
-const showUserWindow = ref(false)
 const activeTab = ref('history-chat')
+const store = useGlobalState()
 
 </script>
 
@@ -38,40 +44,40 @@ const activeTab = ref('history-chat')
           <img src="./assets/bot.svg" alt="">
         </div>
       </div>
+
+      <div class="silder-content">
+        <!-- <helper-list /> -->
+        <history-chat />
+      </div>
+      <div v-show="!sidebarCollapse" class="absolute bottom-4 inset-x-0 w-[266px] h-[102px] py-2">
+        <div class="text-gray-600 pl-4 mb-4">
+          <p class="mb-1">设备号：xxxxx</p>
+          <p>服务有效期：2024-09-12</p>
+        </div>
+        <div class="grid grid-cols-3 divide-x text-white text-sm text-center">
+          <span class="cursor-pointer">联系我们</span>
+          <span class="cursor-pointer">我的订单</span>
+          <span class="cursor-pointer">购买套餐</span>
+        </div>
+      </div>
     </div>
     <div class="stretch_box" :class="{'stretch_box__collapse': sidebarCollapse }" @click="sidebarCollapse=!sidebarCollapse">
       <img v-show="!sidebarCollapse" src="./assets/open.svg" alt="">
       <img v-show="sidebarCollapse" src="./assets/close.svg" alt="">
     </div>
     <main :class="{'main__collapse': sidebarCollapse}">
-      <!-- <div class="header">
-        <div class="items-center flex text-[#616b97]">
-          <img src="./assets/header_logo.svg" class="h-[23px] bg-[length:177px_29px]" alt="">
-        </div>
-        <div class="control_btn_wrap justify-end h-full flex text-[#d0d7e8] items-center">
-          <div class="version text-[#616b97] text-sm mr-2.5">通用版</div>
-          <div class="user_img items-center flex h-full justify-center mr-1 w-12" @mouseover="showUserWindow=true" @mouseleave="showUserWindow = false">
-            <img src="./assets/avatar.png" class="w-[26px] h-[26px] rounded-full" alt="">
-          </div>
-        </div>
-        <div class="userinfo_window" v-show="showUserWindow" @mouseover="showUserWindow=true" @mouseleave="showUserWindow = false">
-          <div class="user_info_item username">185xxxx5945</div>
-          <div class="user_info_item">个人资料</div>
-          <div class="user_info_item">修改密码</div>
-          <div class="user_info_item">退出登录</div>
-        </div>
-      </div> -->
       <div class="chat_window">
+        
         <div class="out_wrap">
-          <div class="chat_content_wrapper">
+          <div v-if="store.msgRecord.value.length" class="mt-10">
+            <chat-item :record="record" v-for="(record, i) in store.msgRecord.value" :key="i" />
+          </div>
+          <div class="chat_content_wrapper" v-else>
             <welcome />
           </div>
         </div>
-        <div class="ask-window">
-          <div class="ask_window__bg"></div>
-          <textarea class="" maxlength="7000" placeholder="在此输入您想了解的内容，输入“/”可获取模板，Shift+Enter换行" style="height: 75px;"></textarea>
-          <div class="send">发送</div>
-        </div>
+
+        <chat-input />
         <div class="tip">
           <p>所有内容均由人工智能模型输出，其内容的准确性和完整性无法保证，不代表我们的态度或观点。</p>
         </div>
@@ -156,68 +162,7 @@ const activeTab = ref('history-chat')
     pointer-events: none;
   }
 }
-.send {
-  background: linear-gradient(#597eff,#6278ff);
-  border-radius: 8px;
-  bottom: 10px;
-  color: #fff;
-  cursor: pointer;
-  font-size: 14px;
-  height: 38px;
-  line-height: 38px;
-  margin-left: 20px;
-  position: absolute;
-  right: 10px;
-  text-align: center;
-  transition: all .3s;
-  width: 70px;
-  z-index: 35;
-  &:hover {
-    opacity: .9;
-  }
-}
-.ask-window {
-  border-radius: 6px;
-  height: 95px;
-  margin: 0 auto;
-  position: relative;
-  width: 95%;
-  .ask_window__bg {
-    background: #fff;
-    border-radius: 6px;
-    bottom: 0;
-    left: 0;
-    margin: 0 auto;
-    max-height: 186px;
-    min-height: 98px;
-    position: absolute;
-    width: 100%;
-    z-index: 31;
-  }
-  // @media screen and (max-width: 1300px) {
-  //   .ask_window__bg {
-  //     width: 780px;
-  //   }
-  // }
-  textarea {
-    background: transparent;
-    border: none;
-    border-radius: 8px;
-    bottom: 2px;
-    color: #07133e;
-    font-size: 14px;
-    left: 2px;
-    line-height: 25px;
-    max-height: 180px;
-    min-height: 95px;
-    outline: none;
-    padding: 10px 100px 10px 32px;
-    position: absolute;
-    resize: none;
-    width: calc(100% - 4px);
-    z-index: 32;
-  }
-}
+
 // @media screen and (max-width: 1300px) {
 //   .ask-window {
 //     width: 780px;
@@ -229,6 +174,7 @@ const activeTab = ref('history-chat')
   height: 100%;
   position: relative;
   width: 100%;
+  padding: 0 2.5%;
   z-index: 1;
   .out_wrap {
     display: flex;
@@ -457,6 +403,12 @@ const activeTab = ref('history-chat')
   transition: width .3s;
   width: 266px;
   z-index: 75;
+}
+.silder-content {
+  height: calc(100% - 310px);
+  padding-top: 8px;
+  position: relative;
+  width: 100%;
 }
 .sidebar__collapse {
   width: 64px;
