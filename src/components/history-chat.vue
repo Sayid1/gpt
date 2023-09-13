@@ -26,7 +26,7 @@ function clickHistoryChatItem(id) {
   // 设置侧边栏激活的对话id
   store.activeChatId.value = id
   // 设置当前的对话消息记录
-  store.msgRecord.value = chat.value[id].chatRecords || []
+  store.msgRecord.value = JSON.parse(JSON.stringify(chat.value[id].chatRecords)) || []
 }
 
 onMounted(() => document.body.addEventListener ('click', cancel))

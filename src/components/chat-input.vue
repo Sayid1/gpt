@@ -10,7 +10,7 @@ const showPrompt = ref(false)
 const textareaRef = ref(null)
 
 
-watch(store.msg, newInput => {
+watch(store.content, newInput => {
   if (newInput === '/') {
     showPrompt.value = true
   } else {
@@ -30,25 +30,27 @@ const promptList = [
 const { fetch, isFetching, abort, data } = useSendMsg()
 
 function  sendMsg() {
+  if (store.isGenerating.value) return
+  if (!store.content.value.trim()) return
   let id = store.activeChatId.value
   if (!id) id = genChatId()
   // 缓存对话的标题
-  set(id, store.msg.value)
+  set(id, store.content.value)
   // 请求对话
-  fetch(id, store.msg.value)
+  fetch(id, store.content.value)
   // 设置当前的对话消息记录
   store.msgRecord.value.push({
-    type: 'user',
-    msg: store.msg.value
+    role: 'user',
+    content: store.content.value
   }, {
-    type: 'assistant',
-    msg: '',
+    role: 'assistant',
+    content: '',
     status: 'loading',
   })
-  // 设置侧边栏激活的对话id
-  store.activeChatId.value = id
+  // // 设置侧边栏激活的对话id
+  // store.activeChatId.value = id
   // 重置输入框
-  store.msg.value = ''
+  store.content.value = ''
 }
 
 </script>
@@ -60,12 +62,12 @@ function  sendMsg() {
         <div class="prompt_wrap">
             <span>推荐模板</span>
             <div class="list">
-            <div @click="store.msg.value = prompt.text" class="item" v-for="prompt in promptList" :key="prompt.title">{{ prompt.title }}</div>
+            <div @click="store.content.value = prompt.text" class="item" v-for="prompt in promptList" :key="prompt.title">{{ prompt.title }}</div>
             </div>
         </div>
     </div>
-    <textarea ref="textareaRef" @keyup.enter="sendMsg" v-model="store.msg.value" maxlength="7000" placeholder="在此输入您想了解的内容，输入“/”可获取模板，Shift+Enter换行" style="height: 75px;"></textarea>
-    <div class="send" @click="sendMsg">发送</div>
+    <textarea ref="textareaRef" @keyup.enter="sendMsg" v-model="store.content.value" maxlength="7000" placeholder="在此输入您想了解的内容，输入“/”可获取模板，Shift+Enter换行" style="height: 75px;"></textarea>
+    <div class="send" :class="{'!cursor-not-allowed': store.isGenerating.value}" @click="sendMsg">发送</div>
 </div>
 </template>
 

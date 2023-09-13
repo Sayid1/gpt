@@ -17,7 +17,9 @@ const { set } = useChatCache()
 const { fetch, abort, data } = useSendMsg()
 
 function clickQuestion(q) {
-  const id = genChatId()
+  
+  let id = store.activeChatId.value
+  if (!id) id = genChatId()
   
   // 缓存对话的标题
   set(id, q)
@@ -25,15 +27,15 @@ function clickQuestion(q) {
   fetch(id, q)
   // 设置当前的对话消息记录
   store.msgRecord.value.push({
-    type: 'user',
-    msg: q
+    role: 'user',
+    content: q
   }, {
-    type: 'assistant',
-    msg: '',
+    role: 'assistant',
+    content: '',
     status: 'loading',
   })
   // 设置侧边栏激活的对话id
-  store.activeChatId.value = id
+  // store.activeChatId.value = id
 }
 </script>
 

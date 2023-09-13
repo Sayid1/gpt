@@ -1,6 +1,7 @@
 import { useStorage, useFetch, useWebSocket } from '@vueuse/core'
-import { ref, watch, reactive, watchEffect } from 'vue'
+import { ref, watch, computed, watchEffect } from 'vue'
 import { useGlobalState } from './store'
+import dayjs from 'dayjs'
 
 export function genChatId() {
   const id = +new Date() + ''
@@ -10,7 +11,7 @@ export function genChatId() {
 
 const store = useGlobalState()
 /**
- * @param { Object } record  {  record: [{ msg: strig, type: assistant | user }] | string }
+ * @param { Object } record  {  record: [{ content: strig, role: assistant | user }] | string }
  */
 export function useChatCache() {
   const chat = useStorage('history-chat', {}, localStorage)
@@ -30,7 +31,16 @@ export function useChatCache() {
       }
     }
   }
-  return { chat, set }
+
+  function remove(id, length) {
+    if (length) {
+      chat.value[id].chatRecords.splice(chat.value[id].chatRecords.length - length, length)
+      console.log(JSON.stringify(chat.value[id].chatRecords))
+    } else {
+      chat.value[id] = null
+    }
+  }
+  return { chat, set, remove }
 }
 
 const { set, chat } = useChatCache()
@@ -38,31 +48,48 @@ const { set, chat } = useChatCache()
 export function useSendMsg() {
   const { isFetching, data, error, abort, statusCode, post } = useFetch('http://8.129.170.108/api/xfws', { immediate: false })
 
-  function fetch(id, userInput) {
+  function fetch(id, userInput, reanswer=false) {
+    store.isGenerating.value = true
     post().json().execute().then(() => {
-      ws(id, data.value.data, userInput)
+      ws(id, data.value.data, userInput, reanswer)
     })
   }
   return { fetch, isFetching, abort, data }
 }
 
-function ws(id, path, userInput) {
+const genText = ref('')
+const completedText = ref('')
+const isCompleted = computed(() => genText.value === completedText.value)
+watch(isCompleted, newVal => {
+  if (newVal) {
+    store.isGenerating.value = false
+    store.msgRecord.value.splice(store.msgRecord.value.length - 1, 1, {
+      role: 'assistant',
+      content: genText.value,
+      finished: true
+    })
+  }
+})
+watch(genText, newVal => {
+  store.msgRecord.value.splice(store.msgRecord.value.length - 1, 1, {
+    role: 'assistant',
+    content: newVal,
+    finished: newVal === completedText.value
+  })
+})
 
+function ws(id, path, userInput, reanswer) {
   const chatRecords = chat.value[id].chatRecords
   let text = []
   if (chatRecords) {
     text = chatRecords.slice(0, 6)
-    text.push({ "role": "user", "content":  userInput })
-    // text = content.splice(content.length - 1, 1)
+    if (!reanswer) text.push({ "role": "user", "content":  userInput })
   } else {
     text = [{ "role": "user", "content":  userInput }]
   }
-  console.log(JSON.stringify(text))
-  
   var textresult = ''
-  let flag = true
-  var i = 0
   var completed = 0
+  var i = 0
   let timer = []
   const { status, data, send, open, close, ws } = useWebSocket(path, {
     onMessage(w, e) {
@@ -71,49 +98,24 @@ function ws(id, path, userInput) {
       for(var j=i; j<textresult.length; j++) {
         var delay = j * 12;
         timer.push(setTimeout(function () {
-          flag = false;
           i++
           var text = textresult.slice(0, i)
-      //     var mark = marked.parse(text);
-          store.msgRecord.value.splice(store.msgRecord.value.length - 1, 1, {
-            type: 'assistant',
-            msg: text
-          })
+          genText.value = text
           var textOld = textresult.slice(0, i-1)
-          if (text === textOld&&!completed) {
+          if (text === textOld) {
             i--
           }
-          if (i < textresult.length) {
-            flag = false;
-          } else if (completed){
-            flag = true
-            console.log('first')
-          }
-          console.log(text)
-      //     if (body.length % 2 != 0) {
-      //       body.push({
-      //         role: 'assistant',
-      //         content: text
-      //       }) 
-      //     } else {
-      //       body[body.length-1] = {
-      //         role: 'assistant',
-      //         content: text
-      //       }
-      //     }
-      //     handleResponse(mark, flag);
         }, delay));
       }
     },
     onDisconnected() {
       completed = textresult
-      set(id, [{
-        type: 'user',
-        msg: userInput
-      }, {
-        type: 'assistant',
-        msg: textresult
-      }])
+      completedText.value = textresult
+      const cache = [{ role: 'user',  content: userInput }, { role: 'assistant', content: textresult, finished: true }]
+      if (reanswer) {
+        cache.splice(0, 1)
+      }
+      set(id, cache)
     }
   })
   watch(status, () => {
@@ -123,9 +125,9 @@ function ws(id, path, userInput) {
         "parameter": { "chat": { "domain": "generalv2", "max_tokens":4096 } },
         "payload": { "message": { "text": text} }
       }
+      console.log(JSON.stringify(text))
       send(JSON.stringify(params))
-
     }
   })
-
+  store.close.value = close
 }

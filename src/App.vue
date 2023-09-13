@@ -6,13 +6,21 @@ import helperList from './components/helper-list.vue'
 import historyChat from './components/history-chat.vue'
 import chatItem from './components/chat.vue'
 import chatInput from './components/chat-input.vue'
-// import { genChatId } from './utils'
+import { genChatId, useChatCache } from './utils'
 
-// genChatId()
 const sidebarCollapse = ref(false)
 const activeTab = ref('history-chat')
 const store = useGlobalState()
-console.log('store.msgRecord.value', store.msgRecord.value)
+const { set } = useChatCache()
+
+function addChat() {
+  let id = genChatId()
+  const title = '新对话窗口'
+  // 缓存对话的标题
+  set(id, title)
+  store.msgRecord.value.splice(0, store.msgRecord.value.length)
+}
+
 </script>
 
 <template>
@@ -26,7 +34,7 @@ console.log('store.msgRecord.value', store.msgRecord.value)
           <div class="btn help-center">
             <img src="./assets/spark-bot-logo.svg" alt="">&nbsp;助手中心
           </div>
-          <div class="btn new-chat">
+          <div class="btn new-chat" @click="addChat">
             <span>+</span>&nbsp;新建对话
           </div>
         </div>
@@ -39,7 +47,7 @@ console.log('store.msgRecord.value', store.msgRecord.value)
 
       <div v-show="sidebarCollapse">
         <img src="./assets/logo.svg" class="mt-[16px] mb-10  mx-auto w-5" alt="">
-        <div class="box !mb-5">
+        <div class="box !mb-5" @click="addChat">
           <img src="./assets/add.svg" alt="">
         </div>
         <div class="box">
@@ -47,7 +55,7 @@ console.log('store.msgRecord.value', store.msgRecord.value)
         </div>
       </div>
 
-      <div class="silder-content">
+      <div class="silder-content" v-show="!sidebarCollapse">
         <helper-list v-show="activeTab !== 'history-chat'" />
         <history-chat v-show="activeTab === 'history-chat'" />
       </div>
