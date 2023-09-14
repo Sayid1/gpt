@@ -1,21 +1,20 @@
 import {createApp} from 'vue';
+import VueRouter from 'vue-router'
 import './style.css';
 import App from './App.vue';
+import Home from './components/home.vue'
+import ContactUs from './components/contact-us.vue'
 
+// const routes = [
+//   { path: '/', component: Home },
+//   { path: '/contact-us', component: ContactUs },
+// ]
+
+// const router = VueRouter.createRouter({
+//   // 4. 内部提供了 history 模式的实现。为了简单起见，我们在这里使用 hash 模式。
+//   history: VueRouter.createWebHashHistory(),
+//   routes, // `routes: routes` 的缩写
+// })
 const app = createApp (App)
-
+// app.use(router)
 app.mount ('#app');
-
-// app.directive('click-outside', {
-//   mounted (el, binding, vnode) {
-//     el.clickOutsideEvent = event => {
-//       if (!(el === event.target || el.contains (event.target))) {
-//         vnode.context[binding.expression] (event);
-//       }
-//     };
-//     document.body.addEventListener ('click', el.clickOutsideEvent);
-//   },
-//   unmounted (el) {
-//     document.body.removeEventListener ('click', el.clickOutsideEvent);
-//   },
-// });

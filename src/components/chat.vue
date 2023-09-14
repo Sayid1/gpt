@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { marked } from 'marked';
 import { useGlobalState } from '../store'
-import { useSendMsg, useChatCache, genChatId } from '../utils'
+import { useSendMsg, useChatCache, helperObj } from '../utils'
 
 const props = defineProps({
   record: Object,
@@ -30,9 +30,8 @@ function reanswer() {
 }
 
 function stop() {
-  store.close.value()
+  store.close.value(1000)
 }
-console.log('props', props)
 </script>
 
 <template>
@@ -43,7 +42,7 @@ console.log('props', props)
       <div class="content_welcome_gpt mb-8" v-if="props.record.role === 'user'">
         {{ props.record.content }}
       </div>
-      <template v-else>
+      <template v-else-if="props.record.role === 'assistant'">
         <div v-if="props.record.status=== 'loading'" class="mb-10 bg-[rgb(255_255_255_/_57%)] py-[25px] px-[38px] w-full text-gray-400">
           <svg class="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -95,11 +94,45 @@ console.log('props', props)
           </div>
         </div>
       </template>
+      <template v-else>
+        <div class="helper_welcome">
+          <div class="first">
+            <img src="../assets/welcome-txt-bg.png" alt="" class="welcome_txt_bg">
+            <!-- {{ store.activeChatId.value }} -->
+            <span style="color: rgb(76, 117, 246); font-size: 16px; font-weight: 600;">您已进入助手模式，当前选择的助手为：{{ helperObj[store.activeChatId.value].title }}</span>
+            <br>{{ helperObj[store.activeChatId.value].desc }}<br>
+          </div>
+        </div>
+      </template>
     </div>
   </div>
 </template>
 
 <style scoped lang="scss">
+.helper_welcome {
+  width: 100%;
+  .first {
+    background: hsla(0,0%,100%,.57);
+    border-radius: 8px;
+    box-sizing: border-box;
+    letter-spacing: .5px;
+    line-height: 24px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    padding: 20px 28px;
+    position: relative;
+    width: 100%;
+    word-break: break-all;
+    .welcome_txt_bg {
+      height: 100%;
+      pointer-events: none;
+      position: absolute;
+      right: -2px;
+      top: 0;
+      width: auto;
+    }
+  }
+}
 .re_answer {
   align-items: center;
   color: #9194bf;

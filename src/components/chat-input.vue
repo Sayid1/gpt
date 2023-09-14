@@ -29,13 +29,15 @@ const promptList = [
 
 const { fetch, isFetching, abort, data } = useSendMsg()
 
-function  sendMsg() {
+function sendMsg() {
   if (store.isGenerating.value) return
   if (!store.content.value.trim()) return
   let id = store.activeChatId.value
   if (!id) id = genChatId()
-  // 缓存对话的标题
-  set(id, store.content.value)
+  if (store.activeTab.value === 'history-chat') {
+    // 缓存对话的标题 todo 如果是助手对话 不需要再缓存标题
+    set(id, store.content.value)
+  }
   // 请求对话
   fetch(id, store.content.value)
   // 设置当前的对话消息记录

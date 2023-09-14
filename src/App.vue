@@ -6,21 +6,38 @@ import helperList from './components/helper-list.vue'
 import historyChat from './components/history-chat.vue'
 import chatItem from './components/chat.vue'
 import chatInput from './components/chat-input.vue'
+import helperCenter from './components/helper-center.vue'
+import contactUs from './components/contact-us.vue'
+import orders from './components/orders.vue'
+import plans from './components/plans.vue'
+
 import { genChatId, useChatCache } from './utils'
 
 const sidebarCollapse = ref(false)
-const activeTab = ref('history-chat')
 const store = useGlobalState()
-const { set } = useChatCache()
+const { set, remove } = useChatCache()
 
 function addChat() {
+  store.url.value = 'http://8.129.170.108/api/xfws'
+  store.activeTab.value = 'history-chat'
+  store.showChat.value = true
   let id = genChatId()
   const title = '新对话窗口'
   // 缓存对话的标题
-  set(id, title)
+  set(id, title, true)
+
+  set(id, [])
   store.msgRecord.value.splice(0, store.msgRecord.value.length)
 }
 
+function changeToHelperCenterRoot() {
+  store.activeTab.value = 'bot-list'
+  store.showChat.value = false
+  store.activeChatId.value = null
+}
+function changeToHistoryTab() {
+  store.activeTab.value = 'history-chat'
+}
 </script>
 
 <template>
@@ -31,7 +48,7 @@ function addChat() {
           <img src="./assets/logo.png" alt="">
         </div>
         <div class="actions-btn" v-show="!sidebarCollapse">
-          <div class="btn help-center">
+          <div class="btn help-center" @click="changeToHelperCenterRoot">
             <img src="./assets/spark-bot-logo.svg" alt="">&nbsp;助手中心
           </div>
           <div class="btn new-chat" @click="addChat">
@@ -39,8 +56,8 @@ function addChat() {
           </div>
         </div>
         <div class="tabs" v-show="!sidebarCollapse">
-          <div :class="{active: activeTab === 'history-chat'}" @click="activeTab='history-chat'">历史对话</div>
-          <div :class="{active: activeTab !== 'history-chat'}" @click="activeTab='bot-list'">助手列表</div>
+          <div :class="{active: store.activeTab.value === 'history-chat'}" @click="changeToHistoryTab">历史对话</div>
+          <div :class="{active: store.activeTab.value !== 'history-chat'}" @click="store.activeTab.value='bot-list'">助手列表</div>
         </div>
         <div class="chat-list" v-show="!sidebarCollapse"></div>
       </div>
@@ -56,8 +73,8 @@ function addChat() {
       </div>
 
       <div class="silder-content" v-show="!sidebarCollapse">
-        <helper-list v-show="activeTab !== 'history-chat'" />
-        <history-chat v-show="activeTab === 'history-chat'" />
+        <helper-list v-show="store.activeTab.value !== 'history-chat'" />
+        <history-chat v-show="store.activeTab.value === 'history-chat'" />
       </div>
       <div v-show="!sidebarCollapse" class="absolute bottom-4 inset-x-0 w-[266px] h-[102px] py-2">
         <div class="text-gray-600 pl-4 mb-4">
@@ -79,15 +96,20 @@ function addChat() {
       <div class="chat_window">
         
         <div class="out_wrap">
-          <div v-if="store.msgRecord.value?.length" class="mt-10">
-            <chat-item :record="record" :last="i === store.msgRecord.value.length - 1" v-for="(record, i) in store.msgRecord.value" :key="i" />
-          </div>
-          <div class="chat_content_wrapper" v-else>
-            <welcome />
-          </div>
-        </div>
+          <template v-if="store.showChat.value">
 
-        <chat-input />
+            <div v-if="store.msgRecord.value?.length" class="mt-10">
+              <chat-item :record="record" :last="i === store.msgRecord.value.length - 1" v-for="(record, i) in store.msgRecord.value" :key="i" />
+            </div>
+
+            <div class="chat_content_wrapper" v-else>
+              <welcome />
+            </div>
+          </template>
+          <helper-center v-else />
+        </div>
+        <chat-input v-if="store.showChat.value" />
+
         <div class="tip">
           <p>所有内容均由人工智能模型输出，其内容的准确性和完整性无法保证，不代表我们的态度或观点。</p>
         </div>
@@ -103,74 +125,6 @@ function addChat() {
   margin-top: 12px;
   text-align: center;
   width: 100%;
-}
-.voice_input {
-  align-items: center;
-  bottom: 10px;
-  cursor: pointer;
-  display: flex;
-  height: 38px;
-  overflow: hidden;
-  position: absolute;
-  right: 94px;
-  z-index: 95;
-  & > span {
-    color: #9194bf;
-    position: relative;
-    top: 2px;
-    transform: scaleY(1.1);
-    visibility: visible;
-    &:hover>span {
-      color: #5a7dff;
-    }
-  }
-  .anticon {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    color: inherit;
-    display: inline-block;
-    font-style: normal;
-    line-height: 0;
-    text-align: center;
-    text-rendering: optimizelegibility;
-    text-transform: none;
-    vertical-align: -0.125em;
-    pointer-events: none;
-  }
-}
-.upload_wrapper {
-  align-items: center;
-  bottom: 10px;
-  cursor: pointer;
-  display: flex;
-  height: 38px;
-  overflow: hidden;
-  position: absolute;
-  right: 128px;
-  z-index: 95;
-  & > span {
-    color: #9194bf;
-    position: relative;
-    top: 2px;
-    transform: scaleY(1.1);
-    visibility: visible;
-    &:hover>span {
-      color: #5a7dff;
-    }
-  }
-  .anticon {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    color: inherit;
-    display: inline-block;
-    font-style: normal;
-    line-height: 0;
-    text-align: center;
-    text-rendering: optimizelegibility;
-    text-transform: none;
-    vertical-align: -0.125em;
-    pointer-events: none;
-  }
 }
 
 // @media screen and (max-width: 1300px) {
@@ -242,19 +196,6 @@ function addChat() {
     cursor: pointer;
   }
 }
-.header {
-  align-items: center;
-  background-color: #f2f5ff;
-  flex-wrap: nowrap;
-  height: 64px;
-  padding-left: 40px;
-  padding-right: 10px;
-  position: relative;
-  width: 100%;
-  z-index: 70;
-  display: flex;
-  justify-content: space-between;
-}
 .box {
   align-items: center;
   background: hsla(0,0%,100%,.16);
@@ -283,7 +224,7 @@ function addChat() {
   position: absolute;
   transition: left .3s;
   width: 12px;
-  z-index: 76;
+  z-index: 6;
   img {
     height: 10px;
     opacity: .8;
@@ -412,7 +353,7 @@ function addChat() {
   top: 0;
   transition: width .3s;
   width: 266px;
-  z-index: 75;
+  z-index: 5;
 }
 .silder-content {
   height: calc(100% - 310px);
