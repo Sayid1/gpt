@@ -9,8 +9,6 @@ import { v4 } from 'uuid'
 import Chart from 'chart.js/auto'
 // import { Marked } from 'marked';
 import markdown from './markdown.vue'
-import {markedHighlight} from "marked-highlight";
-import hljs from 'highlight.js';
 import { useGlobalState } from '../store'
 import Modal from './modal.vue'
 import { useSendMsg, useChatCache, helperObj, manualStop } from '../utils'
@@ -187,8 +185,9 @@ async function exportChart() {
   canvas.width = 1224;
   canvas.height = 768;
   canvas.style.display = "none";
+  document.body.appendChild(canvas);
 
-  const chart = new Chart(canvasElRef.value, {
+  const chart = new Chart(canvas, {
     type: "bar",
     data: {
       labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
@@ -202,7 +201,6 @@ async function exportChart() {
       ]
     },
     options: {
-      // indexAxis: "y",
       animation: false,
       backgroundColor: "#fff"
     },
@@ -212,6 +210,11 @@ async function exportChart() {
 
   const tables = Array.from(document.querySelector(`#markdown_body_${id}`).getElementsByTagName('table'))
   for(var i = 0; i < tables.length; ++i) {
+    const thead = tables[i].querySelectorAll('thead th');
+    thead.forEach((row, rowIndex) => {
+      
+    })
+
     const worksheet = workbook.addWorksheet('Sheet ' + (i + 1));
     
     const chartImage = chart.toBase64Image("types/png");

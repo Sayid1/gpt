@@ -193,26 +193,26 @@ export const helperObj = {
     hot: true,
     badgeBg: 'rgb(244, 205, 88)',
   },
-  "2x": {
-    id: "2x",
-    title: "思维导图生成助手",
-    desc: "思维导图牛成助手，让您的恩考更加高效、粘准",
-    welcome: '输入你的需求，星火大模型会将其拆解为一级、二级分支。 将其复制到wps思维导图中即可一键生成分支。',
-    badge: '思',
-    hot: false,
-    badgeBg: 'rgb(148, 61, 212)',
-  },
-  "3x": {
-    id: "3x",
-    title: "Word转PPT",
-    desc: "请上传word文档，助手将会帮你转话为PPT",
-    welcome: '请上传word文档，助手将会帮你转话为PPT',
-    badge: 'W',
-    hot: false,
-    badgeBg: 'rgb(65, 104, 243)',
-  },
-  "4x": {
-    id: "4x",
+  // "2x": {
+  //   id: "2x",
+  //   title: "思维导图生成助手",
+  //   desc: "思维导图牛成助手，让您的恩考更加高效、粘准",
+  //   welcome: '输入你的需求，星火大模型会将其拆解为一级、二级分支。 将其复制到wps思维导图中即可一键生成分支。',
+  //   badge: '思',
+  //   hot: false,
+  //   badgeBg: 'rgb(148, 61, 212)',
+  // },
+  // "3x": {
+  //   id: "3x",
+  //   title: "Word转PPT",
+  //   desc: "请上传word文档，助手将会帮你转话为PPT",
+  //   welcome: '请上传word文档，助手将会帮你转话为PPT',
+  //   badge: 'W',
+  //   hot: false,
+  //   badgeBg: 'rgb(65, 104, 243)',
+  // },
+  "61l7lnzu9kot_v1": {
+    id: "61l7lnzu9kot_v1",
     title: "写作助理",
     desc: "请说出您要创作的文章类型，以及文章的要求",
     welcome: '你好，我是你的写作助理，请提供文本内容，我可以帮你进行润色。',
@@ -220,8 +220,8 @@ export const helperObj = {
     hot: false,
     badgeBg: 'rgb(230, 125, 59)',
   },
-  "5x": {
-    id: "5x",
+  "1ajruc2aglo3_v1": {
+    id: "1ajruc2aglo3_v1",
     title: "演讲稿助理",
     desc: "请给我一个主题，我可以帮助你写一篇适合的演讲稿",
     welcome: '请给我一个主题，我将为您带来一篇能够引起听众共鸣的职场演讲稿，比如“沉淀”',
@@ -229,8 +229,8 @@ export const helperObj = {
     hot: false,
     badgeBg: 'rgb(139 ,196, 60)',
   },
-  "6x": {
-    id: "6x",
+  "og8n92sxc6jd_v1": {
+    id: "og8n92sxc6jd_v1",
     title: "周报小助理",
     desc: "请直接输入周报的提示内容或关键词，小助理会帮您润色周报",
     welcome: '请直接输入本周工作概要，小助理会帮您润色周报，比如输入“用户激励活动上线，用户活跃率提升15%”',
@@ -238,8 +238,8 @@ export const helperObj = {
     hot: false,
     badgeBg: 'rgb(93, 195, 207)',
   },
-  "7x": {
-    id: "7x",
+  "dvpd3ds7xkeh_v1": {
+    id: "dvpd3ds7xkeh_v1",
     title: "标题小达人",
     desc: "输入你想起标题的文本，即可输出5个文章标题",
     welcome: '输入你想起标题的文本，即可输出5个文章标题',
@@ -247,8 +247,8 @@ export const helperObj = {
     hot: false,
     badgeBg: 'rgb(216, 146, 61)',
   },
-  "8x": {
-    id: "8x",
+  "3hkeq3n9bkr1_v1": {
+    id: "3hkeq3n9bkr1_v1",
     title: "SWOT分析",
     desc: "请填写事件描述，助手会根据事件作出SWOT分析",
     welcome: '请填写事件描述，助手会根据事件做出SWOT分析，比如“翻译机新产品发布”',
@@ -256,8 +256,8 @@ export const helperObj = {
     hot: false,
     badgeBg: 'rgb(61, 80, 172)',
   },
-  "9x": {
-    id: "9x",
+  "vwck6olu9h8q_v1": {
+    id: "vwck6olu9h8q_v1",
     title: "稿件校队员",
     desc: "输入稿件内容，我能找出错别字和语法错误哦",
     welcome: '输入稿件内容，我能找出错别字和语法错误，您可以尝试复制一段文本',
@@ -265,8 +265,8 @@ export const helperObj = {
     hot: false,
     badgeBg: 'rgb(128, 127, 38)',
   },
-  "10x": {
-    id: "10x",
+  "ojkwj3un8omc_v1": {
+    id: "ojkwj3un8omc_v1",
     title: "课程设计",
     desc: "请输入授课的主题或主要内容，助手会为你定制一份课程设计",
     welcome: '写出你的课程名称，帮你设计大概念教学计划',
@@ -274,8 +274,8 @@ export const helperObj = {
     hot: false,
     badgeBg: 'rgb(46, 113, 160)',
   },
-  "11x": {
-    id: "11x",
+  "g5wrtd2jx1s1_v1": {
+    id: "g5wrtd2jx1s1_v1",
     title: "代码魔术师",
     desc: "根据要求写出代码",
     welcome: '我将根据您的要求写出示例代码，您可以尝试这样问我：“开发一款消消乐小游戏界面，用python语言”',
@@ -283,8 +283,8 @@ export const helperObj = {
     hot: false,
     badgeBg: 'rgb(103, 199, 249)',
   },
-  "12x": {
-    id: "12x",
+  "lohuy8eicunq_v1": {
+    id: "lohuy8eicunq_v1",
     title: "朋友圈创作助手",
     desc: "告诉我你想写的内容关键词，如：夏天最爱的就是冰淇淋",
     welcome: '告诉你想写的内容关键词，如：夏天最爱的就是冰淇淋',
