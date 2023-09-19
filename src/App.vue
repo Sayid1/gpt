@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useGlobalState } from './store'
+import { useClipboard } from '@vueuse/core'
 import { useRouter, useRoute } from 'vue-router'
 import welcome from './components/welcome-window.vue'
 import helperList from './components/helper-list.vue'
@@ -15,6 +16,8 @@ import message from './components/message/message.js'
 import dayjs from 'dayjs'
 
 import { genChatId, useChatCache } from './utils'
+
+const { copy } = useClipboard()
 
 const sidebarCollapse = ref(false)
 const store = useGlobalState()
@@ -57,6 +60,11 @@ function changeToHistoryTab() {
 function toPage(route) {
   if (checkChat()) return
   router.push(route)
+}
+
+window.copyCode = function(id) {
+  copy(document.getElementById('code_' + id).textContent)
+  message('复制成功')
 }
 </script>
 
