@@ -1,7 +1,8 @@
 import { useStorage, useFetch, useWebSocket } from '@vueuse/core'
-import { ref, watch, computed, watchEffect } from 'vue'
+import { ref, watch, computed, watchEffect, nextTick } from 'vue'
 import { useGlobalState } from './store'
 import dayjs from 'dayjs'
+import prism from 'prismjs';
 
 export function genChatId() {
   const id = +new Date() + ''
@@ -18,12 +19,21 @@ export function useChatCache() {
   function set(id, record, manual=false) {
     // 对话标题
     if (typeof record === 'string' ) {
-      if (!chat.value[id])
+      if (!chat.value[id]) {
+        const orderKeys = Object.keys(chat.value).map(i => Number(i)).filter(i => !isNaN(i)).sort()
+        if (orderKeys.length > 19) {
+          orderKeys.reverse().forEach((key, i) => {
+            if (i > 18) remove(key)
+          })
+        }
         chat.value[id] = { title: record, manual }
-    } else {
-      if (chat.value[id].manual) {
-        chat.value[id].title = record.find(item => item.role === 'user')?.content
       }
+      // 如果是手动创建的会话，第一次聊天的时候修改会话名称
+      else if (chat.value[id].manual) {
+        chat.value[id].title = record
+        chat.value[id].manual = false
+      }
+    } else {
       if (chat.value[id].chatRecords) {
         if (chat.value[id].chatRecords.length === 6) {
           chat.value[id].chatRecords.splice(0, 2)
@@ -45,6 +55,7 @@ export function useChatCache() {
 
   function update(id, title) {
     chat.value[id].title = title
+    console.log( chat.value[id], title)
   }
   return { chat, set, update, remove }
 }
@@ -65,14 +76,12 @@ export function useHelperCache() {
 
 const { set, chat } = useChatCache()
 
-export function useSendMsg(assistantId) {
-  // let url = 'http://8.129.170.108/api/xfws'
-  // if (assistantId) url += `?assistantId=${assistantId}`
+export function useSendMsg() {
   const { isFetching, data, error, abort, statusCode, post } = useFetch(store.url, { immediate: false })
 
   function fetch(id, userInput, reanswer=false) {
     store.isGenerating.value = true
-    post({ a: 1 }).json().execute().then(() => {
+    post().json().execute().then(() => {
       ws(id, data.value.data, userInput, reanswer)
     })
   }
@@ -88,7 +97,7 @@ watch(isCompleted, newVal => {
     store.msgRecord.value.splice(store.msgRecord.value.length - 1, 1, {
       role: 'assistant',
       content: genText.value,
-      finished: true
+      finished: true,
     })
   }
 })
@@ -96,12 +105,28 @@ watch(genText, newVal => {
   store.msgRecord.value.splice(store.msgRecord.value.length - 1, 1, {
     role: 'assistant',
     content: newVal,
-    finished: newVal === completedText.value
+    finished: newVal === completedText.value,
   })
 })
 
 export function manualStop() {
   completedText.value = genText.value
+  store.wsClosed.value = true
+  nextTick(() => {
+
+    store.msgRecord.value.splice(store.msgRecord.value.length - 1, 1, {
+      role: 'assistant',
+      content: genText.value,
+      finished: true,
+      manualStop: true,
+    })
+  })
+
+  const cache = [{ role: 'user',  content: store.msgRecord.value[store.msgRecord.value.length - 2].content }, { role: 'assistant', content: genText.value, finished: true, manualStop: true, }]
+  if (store.isReanswer.value) {
+    cache.splice(0, 1)
+  }
+  set(store.activeChatId.value, cache)
 }
 
 function ws(id, path, userInput, reanswer) {
@@ -134,16 +159,19 @@ function ws(id, path, userInput, reanswer) {
       }
     },
     onDisconnected() {
-      completedText.value = textresult
-      const cache = [{ role: 'user',  content: userInput }, { role: 'assistant', content: textresult, finished: true }]
-      if (reanswer) {
-        cache.splice(0, 1)
+      if (!store.wsClosed.value) {
+        completedText.value = textresult
+        const cache = [{ role: 'user',  content: userInput }, { role: 'assistant', content: textresult, finished: true }]
+        if (reanswer) {
+          cache.splice(0, 1)
+        }
+        set(id, cache)
       }
-      set(id, cache)
     }
   })
   watch(status, () => {
     if (status.value === 'OPEN') {
+      store.wsClosed.value = false
       var params = {
         "header": { "app_id": "5fcf2c5f", "uid": new Date().getTime() + "" },
         "parameter": { "chat": { "domain": "generalv2", "max_tokens":4096 } },
@@ -165,8 +193,8 @@ export const helperObj = {
     hot: true,
     badgeBg: 'rgb(244, 205, 88)',
   },
-  "2": {
-    id: "2",
+  "2x": {
+    id: "2x",
     title: "思维导图生成助手",
     desc: "思维导图牛成助手，让您的恩考更加高效、粘准",
     welcome: '输入你的需求，星火大模型会将其拆解为一级、二级分支。 将其复制到wps思维导图中即可一键生成分支。',
@@ -174,8 +202,8 @@ export const helperObj = {
     hot: false,
     badgeBg: 'rgb(148, 61, 212)',
   },
-  "3": {
-    id: "3",
+  "3x": {
+    id: "3x",
     title: "Word转PPT",
     desc: "请上传word文档，助手将会帮你转话为PPT",
     welcome: '请上传word文档，助手将会帮你转话为PPT',
@@ -183,8 +211,8 @@ export const helperObj = {
     hot: false,
     badgeBg: 'rgb(65, 104, 243)',
   },
-  "4": {
-    id: "4",
+  "4x": {
+    id: "4x",
     title: "写作助理",
     desc: "请说出您要创作的文章类型，以及文章的要求",
     welcome: '你好，我是你的写作助理，请提供文本内容，我可以帮你进行润色。',
@@ -192,8 +220,8 @@ export const helperObj = {
     hot: false,
     badgeBg: 'rgb(230, 125, 59)',
   },
-  "5": {
-    id: "5",
+  "5x": {
+    id: "5x",
     title: "演讲稿助理",
     desc: "请给我一个主题，我可以帮助你写一篇适合的演讲稿",
     welcome: '请给我一个主题，我将为您带来一篇能够引起听众共鸣的职场演讲稿，比如“沉淀”',
@@ -201,8 +229,8 @@ export const helperObj = {
     hot: false,
     badgeBg: 'rgb(139 ,196, 60)',
   },
-  "6": {
-    id: "6",
+  "6x": {
+    id: "6x",
     title: "周报小助理",
     desc: "请直接输入周报的提示内容或关键词，小助理会帮您润色周报",
     welcome: '请直接输入本周工作概要，小助理会帮您润色周报，比如输入“用户激励活动上线，用户活跃率提升15%”',
@@ -210,8 +238,8 @@ export const helperObj = {
     hot: false,
     badgeBg: 'rgb(93, 195, 207)',
   },
-  "7": {
-    id: "7",
+  "7x": {
+    id: "7x",
     title: "标题小达人",
     desc: "输入你想起标题的文本，即可输出5个文章标题",
     welcome: '输入你想起标题的文本，即可输出5个文章标题',
@@ -219,8 +247,8 @@ export const helperObj = {
     hot: false,
     badgeBg: 'rgb(216, 146, 61)',
   },
-  "8": {
-    id: "8",
+  "8x": {
+    id: "8x",
     title: "SWOT分析",
     desc: "请填写事件描述，助手会根据事件作出SWOT分析",
     welcome: '请填写事件描述，助手会根据事件做出SWOT分析，比如“翻译机新产品发布”',
@@ -228,8 +256,8 @@ export const helperObj = {
     hot: false,
     badgeBg: 'rgb(61, 80, 172)',
   },
-  "9": {
-    id: "9",
+  "9x": {
+    id: "9x",
     title: "稿件校队员",
     desc: "输入稿件内容，我能找出错别字和语法错误哦",
     welcome: '输入稿件内容，我能找出错别字和语法错误，您可以尝试复制一段文本',
@@ -237,8 +265,8 @@ export const helperObj = {
     hot: false,
     badgeBg: 'rgb(128, 127, 38)',
   },
-  "10": {
-    id: "10",
+  "10x": {
+    id: "10x",
     title: "课程设计",
     desc: "请输入授课的主题或主要内容，助手会为你定制一份课程设计",
     welcome: '写出你的课程名称，帮你设计大概念教学计划',
@@ -246,8 +274,8 @@ export const helperObj = {
     hot: false,
     badgeBg: 'rgb(46, 113, 160)',
   },
-  "11": {
-    id: "11",
+  "11x": {
+    id: "11x",
     title: "代码魔术师",
     desc: "根据要求写出代码",
     welcome: '我将根据您的要求写出示例代码，您可以尝试这样问我：“开发一款消消乐小游戏界面，用python语言”',
@@ -255,8 +283,8 @@ export const helperObj = {
     hot: false,
     badgeBg: 'rgb(103, 199, 249)',
   },
-  "12": {
-    id: "12",
+  "12x": {
+    id: "12x",
     title: "朋友圈创作助手",
     desc: "告诉我你想写的内容关键词，如：夏天最爱的就是冰淇淋",
     welcome: '告诉你想写的内容关键词，如：夏天最爱的就是冰淇淋',

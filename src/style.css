@@ -13,7 +13,7 @@
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
+  /* -webkit-font-smoothing: antialiased; */
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
 }
@@ -46,4 +46,7 @@ body {
 #app {
   display: contents;
   height: 100%;
+}
+.hidden-scroll-bar::-webkit-scrollbar {
+  display: none;
 }

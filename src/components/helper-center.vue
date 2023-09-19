@@ -1,58 +1,47 @@
 <script setup>
-import { reactive, ref } from 'vue'
+import { nextTick, ref } from 'vue'
 import { useGlobalState } from '../store'
 import { useHelperCache, useChatCache, helperList, helperObj } from '../utils'
-import Modal from './modal.vue'
+// import Modal from './modal.vue'
+import message from './message/message.js'
 
-const isShowModal = ref(false)
+// const isShowModal = ref(false)
 const store = useGlobalState()
 const { chat, set } = useChatCache()
 const { add, helper: addedHelper } = useHelperCache()
 
-function closeModal() {
-  isShowModal.value = false
-}
-function showModal() {
-  isShowModal.value = true
-}
+// function closeModal() {
+//   isShowModal.value = false
+// }
+// function showModal() {
+//   isShowModal.value = true
+// }
 
 function clickHelperItem(id) {
   if (!addedHelper.value.includes(id)) {
-    showModal()
-    setTimeout(() => {
-      closeModal()
-    }, 3000);
+    message('添加成功！')
 
-    
     set(id, helperObj[id].title)
     // 添加小助手缓存
     add(id)
-
   }
 
   store.url.value = 'http://8.129.170.108/api/xfws?assistantId=' + id
+  store.activeChatId.value = id
+  // 设置当前的对话消息记录
+  const records = JSON.parse(JSON.stringify(chat.value[id].chatRecords || []))
+  store.msgRecord.value.splice(0, store.msgRecord.value.length, {
+    role: 'welcome_bot',
+  }, ...records)
+
+  nextTick(() => {
     store.showChat.value = true
-    store.activeChatId.value = id
-    // 设置当前的对话消息记录
-    const records = JSON.parse(JSON.stringify(chat.value[id].chatRecords || []))
-    store.msgRecord.value.splice(0, store.msgRecord.value.length, {
-      role: 'welcome_bot',
-    }, ...records)
+  })
 }
 </script>
 
 <template>
   <div class="bot_welcome_panel">
-    <Modal v-if="isShowModal" @close="closeModal" :overlayer="false">
-      <template #body>
-        <div class="flex gap-x-2 items-center px-3 py-2">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="fill-green-600 w-8 h-8">
-            <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" />
-          </svg>
-          <span>添加成功</span>
-        </div>
-      </template>
-    </Modal>
     <div class="title">
       星火助手中心<span>场景任务一键搞定，打造高效的生产力工具！</span>
     </div>
@@ -86,6 +75,16 @@ function clickHelperItem(id) {
       </div>
       </div>
     </div>
+    <!-- <Modal v-if="isShowModal" @close="closeModal" :overlayer="false">
+      <template #body>
+        <div class="flex gap-x-2 items-center px-3 py-2">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="fill-green-600 w-8 h-8">
+            <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" />
+          </svg>
+          <span>添加成功</span>
+        </div>
+      </template>
+    </Modal> -->
   </div>
 </template>
 

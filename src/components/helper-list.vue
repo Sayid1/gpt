@@ -64,10 +64,10 @@ function showModal() {
       </template>
       <template #footer>
         <div class="flex justify-end gap-x-4">
-          <button @click="closeModal" type="button" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600">
+          <button @click="closeModal" type="button" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 ">
             取消
           </button>
-          <button @click="removeHelper" type="button" class="text-white bg-blue-500 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+          <button @click="removeHelper" type="button" class="text-white bg-blue-500 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center ">
             确定
           </button>
         </div>
@@ -83,14 +83,14 @@ function showModal() {
     >
       <div class="icon_bot">
         <span role="img" class="anticon" style="pointer-events: none;"><svg version="1.1" width="24px" height="26px" viewBox="0 0 24.0 26.0"><defs><clipPath id="i01"><path d="M1440,0 L1440,796 L0,796 L0,0 L1440,0 Z"></path></clipPath><clipPath id="i11"><path d="M14.6,0.923760431 L22.6583302,5.57623957 C23.6484137,6.14786451 24.2583302,7.20427097 24.2583302,8.34752086 L24.2583302,17.6524791 C24.2583302,18.795729 23.6484137,19.8521355 22.6583302,20.4237604 L14.6,25.0762396 C13.6099166,25.6478645 12.3900834,25.6478645 11.4,25.0762396 L3.34166975,20.4237604 C2.35158631,19.8521355 1.74166975,18.795729 1.74166975,17.6524791 L1.74166975,8.34752086 C1.74166975,7.20427097 2.35158631,6.14786451 3.34166975,5.57623957 L11.4,0.923760431 C12.3900834,0.352135487 13.6099166,0.352135487 14.6,0.923760431 Z"></path></clipPath></defs><g transform="translate(-21.0 -192.0)"><g clip-path="url(#i01)"><g transform="translate(20.0 192.0)"><g clip-path="url(#i11)"><polygon points="1.74166975,0.495041723 24.2583302,0.495041723 24.2583302,25.5049583 1.74166975,25.5049583 1.74166975,0.495041723" stroke="none" fill="currentColor"></polygon></g></g></g></g></svg></span>
-          <span style="color: rgb(56, 116, 240);">绘</span>
+        <span :style="{color: helperObj[id].badgeBg}">{{ helperObj[id].badge }}</span>
       </div>
       <div class="info">
         <div class="title">{{ helperObj[id].title }}</div>
         <div class="desc">{{ helperObj[id].desc }}</div>
       </div>
       <div class="control_btn">
-        <div class="img_wrap" @click="confirmRemoveHelper(id)">
+        <div class="img_wrap" @click.stop="confirmRemoveHelper(id)">
           <img src="../assets/close1.svg" alt="" srcset="">
         </div>
       </div>

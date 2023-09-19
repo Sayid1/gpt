@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useGlobalState } from './store'
+import { useRouter, useRoute } from 'vue-router'
 import welcome from './components/welcome-window.vue'
 import helperList from './components/helper-list.vue'
 import historyChat from './components/history-chat.vue'
@@ -8,35 +9,54 @@ import chatItem from './components/chat.vue'
 import chatInput from './components/chat-input.vue'
 import helperCenter from './components/helper-center.vue'
 import contactUs from './components/contact-us.vue'
-import orders from './components/orders.vue'
+// import orders from './components/orders.vue'
 import plans from './components/plans.vue'
+import message from './components/message/message.js'
+import dayjs from 'dayjs'
 
 import { genChatId, useChatCache } from './utils'
 
 const sidebarCollapse = ref(false)
 const store = useGlobalState()
 const { set, remove } = useChatCache()
+const router = useRouter()
+
+function checkChat() {
+  if (store.isGenerating.value) {
+    message({ type: 'warning', message: '对话进行中，请稍后再试'})
+    return true
+  }
+  return false
+}
 
 function addChat() {
+  if (checkChat()) return
+  router.push('/')
   store.url.value = 'http://8.129.170.108/api/xfws'
   store.activeTab.value = 'history-chat'
   store.showChat.value = true
   let id = genChatId()
-  const title = '新对话窗口'
   // 缓存对话的标题
-  set(id, title, true)
+  set(id, '新对话窗口', true)
 
-  set(id, [])
   store.msgRecord.value.splice(0, store.msgRecord.value.length)
 }
 
 function changeToHelperCenterRoot() {
+  if (checkChat()) return
+  router.push('/')
   store.activeTab.value = 'bot-list'
   store.showChat.value = false
   store.activeChatId.value = null
 }
 function changeToHistoryTab() {
+  if (checkChat()) return
   store.activeTab.value = 'history-chat'
+}
+
+function toPage(route) {
+  if (checkChat()) return
+  router.push(route)
 }
 </script>
 
@@ -78,13 +98,13 @@ function changeToHistoryTab() {
       </div>
       <div v-show="!sidebarCollapse" class="absolute bottom-4 inset-x-0 w-[266px] h-[102px] py-2">
         <div class="text-gray-600 pl-4 mb-4">
-          <p class="mb-1">设备号：xxxxx</p>
-          <p>服务有效期：2024-09-12</p>
+          <p class="mb-1">设备号：{{ store.userInfo.mac }}</p>
+          <p>服务有效期：{{ dayjs(store.userInfo.expiredTime).format('YYYY-MM-DD HH:mm:ss') }}</p>
         </div>
-        <div class="grid grid-cols-3 divide-x text-white text-sm text-center">
-          <span class="cursor-pointer">联系我们</span>
-          <span class="cursor-pointer">我的订单</span>
-          <span class="cursor-pointer">购买套餐</span>
+        <div class="grid grid-cols-3 divide-x  text-sm text-center">
+          <span @click.stop="toPage('/contact-us')" class="cursor-pointer text-white">联系我们</span>
+          <span @click.stop="toPage('/orders')" class="cursor-pointer text-white">我的订单</span>
+          <span @click.stop="toPage('/plans')" class="cursor-pointer text-white">购买套餐</span>
         </div>
       </div>
     </div>
@@ -93,76 +113,18 @@ function changeToHistoryTab() {
       <img v-show="sidebarCollapse" src="./assets/close.svg" alt="">
     </div>
     <main :class="{'main__collapse': sidebarCollapse}">
-      <div class="chat_window">
-        
-        <div class="out_wrap">
-          <template v-if="store.showChat.value">
-
-            <div v-if="store.msgRecord.value?.length" class="mt-10">
-              <chat-item :record="record" :last="i === store.msgRecord.value.length - 1" v-for="(record, i) in store.msgRecord.value" :key="i" />
-            </div>
-
-            <div class="chat_content_wrapper" v-else>
-              <welcome />
-            </div>
-          </template>
-          <helper-center v-else />
-        </div>
-        <chat-input v-if="store.showChat.value" />
-
-        <div class="tip">
-          <p>所有内容均由人工智能模型输出，其内容的准确性和完整性无法保证，不代表我们的态度或观点。</p>
-        </div>
-      </div>
+      <router-view></router-view>
     </main>
   </div>
 </template>
 
 <style scoped lang="scss">
-.tip {
-  color: #9197c1;
-  font-size: 12px;
-  margin-top: 12px;
-  text-align: center;
-  width: 100%;
-}
 
 // @media screen and (max-width: 1300px) {
 //   .ask-window {
 //     width: 780px;
 //   }
 // }
-.chat_window {
-  background-color: #e4ebf9;
-  box-sizing: border-box;
-  height: 100%;
-  position: relative;
-  width: 100%;
-  padding: 0 2.5%;
-  z-index: 1;
-  .out_wrap {
-    display: flex;
-    flex-direction: column;
-    height: calc(100% - 150px);
-    margin: 0 auto;
-    overflow-y: auto;
-    position: relative;
-    scrollbar-color: rgba(7,18,59,.14) transparent;
-    scrollbar-width: none;
-    width: 100%;
-    overflow-y: auto;
-    .chat_content_wrapper {
-      display: flex;
-      flex-direction: column-reverse;
-      height: auto;
-      padding-top: 26px;
-      scroll-behavior: smooth;
-      scrollbar-color: rgba(7,18,59,.14) transparent;
-      scrollbar-width: none;
-      padding-top: 0;
-    }
-  }
-}
 .userinfo_window {
   background: hsla(0,0%,100%,.8);
   border-radius: 6px;
@@ -334,7 +296,7 @@ function changeToHistoryTab() {
   }
 }
 .root {
-  background: linear-gradient(#f2f5ff,#f2f5ff 49%,#e4ebf9 50%);
+  background: linear-gradient(#f2f5ff,#f2f5ff 49%,#e4ebf9 100%);
   display: flex;
   height: 100vh;
   min-width: 1200px;

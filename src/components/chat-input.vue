@@ -2,7 +2,7 @@
 import { v4 } from 'uuid'
 import { ref, watch } from 'vue'
 import { useGlobalState } from '../store'
-import { useSendMsg, useChatCache, genChatId } from '../utils'
+import { useSendMsg, useChatCache, genChatId, manualStop } from '../utils'
 
 const store = useGlobalState()
 const { set } = useChatCache()
@@ -26,10 +26,14 @@ const promptList = [
   { title: '活力方案', text: '你现在是个活动企划，公司要举办[新品发布会]，请制定一份详细的活动方案，包括活动主题、时间点、流程、人员安排、预算' },
   { title: '演讲稿', text: '现在你准备参加[时间的重量]的主题演讲，给出一份800字演讲稿，要求文字简洁、情真意切' },
 ]
+const emit = defineEmits(['enter'])
 
 const { fetch, isFetching, abort, data } = useSendMsg()
 
 function sendMsg() {
+  emit('enter')
+  store.isReanswer.value = false
+  store.manualStop.value = false
   if (store.isGenerating.value) return
   if (!store.content.value.trim()) return
   let id = store.activeChatId.value
@@ -54,10 +58,26 @@ function sendMsg() {
   // 重置输入框
   store.content.value = ''
 }
-
+function stop() {
+  manualStop()
+  store.manualStop.value = true
+  store.close.value(4001, 'manual close')
+}
 </script>
 
 <template>
+  <div class="flex justify-end invisible" :class="{'!visible': store.isGenerating.value}">
+    <div
+      class="mb-6 cursor-pointer mt-0.5 bg-[rgb(255_255_255_/_37%)] hover:bg-[rgb(255_255_255_/_57%)] hover:text-gray-900 text-gray-600 flex justify-center gap-x-1 items-center w-32 py-1 rounded-md text-sm"
+      @click="stop">
+      <span>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </span>
+      停止输出
+    </div>
+  </div>
   <div class="ask-window">
     <div class="ask_window__bg"></div>
     <div class="ask_prompt" :class="{'ask_prompt_visible': showPrompt}">
