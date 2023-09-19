@@ -179,55 +179,162 @@ function pptExport(i){
   const url =	"https://mindshow.fun/#/home?channel=miclink&markdown="+encodeURIComponent(content);
   window.open(url,"_blank");		
 }
-async function exportChart() {
-  if (checkChat()) return
-  var canvas = document.createElement('canvas');
-  canvas.width = 1224;
-  canvas.height = 768;
-  canvas.style.display = "none";
-  document.body.appendChild(canvas);
 
-  const chart = new Chart(canvas, {
+function table2json(table) {
+  const labelData = [];
+  const legendData = []
+
+  const theadRow = table.querySelector('thead tr');
+  const theadCol = table.querySelectorAll('thead th');
+  const tbodyRows = table.querySelectorAll('tbody tr');
+  const seriData = Array.from(theadCol).slice(1).map(() => [])
+  tbodyRows.forEach((row, i) => {
+    // if (i === 1) seriData[i] = []
+    // 创建一个空对象来存储当前行的数据
+    // const rowData = {};
+    // 获取当前行的所有单元格
+    const cells = row.querySelectorAll('td');
+    // 遍历表头行中的每个单元格，使用表头作为属性名
+    theadRow.querySelectorAll('th').forEach((header, j) => {
+      const headerText = header.textContent;
+      const text = cells[j].textContent
+      const numberText = Number(text)
+      if (i === 0) legendData.push(headerText)
+      if (j === 0) labelData.push(text)
+      else {
+        if (isNaN(numberText)) seriData[j - 1][i] = 0;
+        else seriData[j - 1][i] = numberText;
+      }
+    });
+
+    // 将当前行的数据对象添加到数组中
+    // data.push(rowData);
+  });
+  // return data
+  console.log(labelData)
+  console.log(seriData)
+  console.log(legendData)
+  return {
+    legendData,
+    seriData,
+    labelData
+  }
+}
+
+function getChart(chartType, data) {
+  if (chartType === 'bar') return getBarChart(data)
+  if (chartType === 'line') return getLinechart(data)
+  return getPiechart(data)
+}
+function getBarChart(data) {
+  const canvas = document.createElement('canvas');
+  canvas.className = 'hidden removeable'
+  canvas.width = 408;
+  canvas.height = 256;
+  // canvas.style.display = "none";
+  document.body.appendChild(canvas);
+  const { legendData, seriData, labelData } = data
+
+  const barChart = new Chart(canvas, {
     type: "bar",
     data: {
-      labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
-      datasets: [
-        {
-          label: "# of Votes",
-          data: [12, 19, 3, 5, 2, 3],
-          borderColor: "#55CC55",
-          backgroundColor: "#99CC99"
-        }
-      ]
+      labels: labelData,
+      datasets: seriData.map((data, i) => ({
+        data,
+        label: legendData[i],
+        // borderColor: "#55CC55",
+        backgroundColor: '#' + Math.floor(Math.random()*16777215).toString(16),
+      }))
     },
     options: {
       animation: false,
-      backgroundColor: "#fff"
+      // backgroundColor: "#fff"
     },
   });
-
+  return barChart
+}
+function getLinechart(data) {
+  const canvas = document.createElement('canvas');
+  canvas.className = 'hidden removeable'
+  canvas.width = 408;
+  canvas.height = 256;
+  // canvas.style.display = "none";
+  document.body.appendChild(canvas);
+  const { legendData, seriData, labelData } = data
+  const lineChart = new Chart(canvas, {
+    type: "line",
+    data: {
+      labels: labelData,
+      datasets: seriData.map((data, i) => ({
+        data,
+        label: legendData[i],
+        fill: false,
+        borderColor: '#' + Math.floor(Math.random()*16777215).toString(16),
+        tension: 0.1
+      }))
+    },
+    options: {
+      animation: false,
+      // backgroundColor: "#fff"
+    },
+  });
+  return lineChart
+}
+function getPiechart(data) {
+  const canvas = document.createElement('canvas');
+  canvas.className = 'hidden removeable'
+  canvas.width = 408;
+  canvas.height = 256;
+  // canvas.style.display = "none";
+  document.body.appendChild(canvas);
+  const { legendData, seriData, labelData } = data
+  let data1 = seriData.find(data => data.every(val => val > 0))
+  if (!data1) data1 = seriData[0]
+  const pieChart = new Chart(canvas, {
+    type: "pie",
+    data: {
+      labels: labelData,
+      datasets: [{
+        data: data1,
+        backgroundColor: data1.map(() => '#' + Math.floor(Math.random()*16777215).toString(16))
+      }]
+    },
+    options: {
+      animation: false,
+    },
+  });
+  window.pieChart = pieChart
+  return pieChart
+}
+async function exportChart() {
+  if (!checkChart.value.length) {
+    message({type: 'warning', message: '请选择图表形式'})
+    return
+  }
+  if (checkChat()) return
   const workbook = new ExcelJS.Workbook();
 
   const tables = Array.from(document.querySelector(`#markdown_body_${id}`).getElementsByTagName('table'))
   for(var i = 0; i < tables.length; ++i) {
-    const thead = tables[i].querySelectorAll('thead th');
-    thead.forEach((row, rowIndex) => {
-      
-    })
+    const data = table2json(tables[i])
+    
+    const charts = checkChart.value.map(chartType => getChart(chartType, data))
 
     const worksheet = workbook.addWorksheet('Sheet ' + (i + 1));
-    
-    const chartImage = chart.toBase64Image("types/png");
-    const image = workbook.addImage({
-      base64: chartImage,
-      extension: "png"
-    });
-    worksheet.addImage(image, {
-      tl: { col: 1, row: 1 },
-      ext: { width: 1000, height: 500 }
-    });
-
     const rows = tables[i].querySelectorAll('tr');
+    
+    charts.forEach((chart, i) => {
+      const chartImage = chart.toBase64Image();
+      const image = workbook.addImage({
+        base64: chartImage,
+        extension: "png"
+      });
+      worksheet.addImage(image, {
+        tl: { col: 1, row: rows.length + 4 + i * 34 },
+        ext: { width: 408 * 2, height: 256 * 2 }
+      });
+    })
+
     rows.forEach((row, rowIndex) => {
       const cells = row.querySelectorAll('th, td');
       let columnIndex = 1; // Track the current column index
@@ -251,27 +358,27 @@ async function exportChart() {
         columnIndex += colspan;
       });
     });
-    
-    // worksheet.addBackgroundImage({
-    //   filename: 'path_to_your_image.png', // Replace with the path to your image file
-    //   extension: 'png', // Replace with the image file extension
-    //   type: 'tile', // 'tile' to repeat the image across the entire worksheet
-    // });
   }
   
-// Create an Excel file (workbook)
-const buffer = await workbook.xlsx.writeBuffer();
+  // Create an Excel file (workbook)
+  const buffer = await workbook.xlsx.writeBuffer();
 
-// Save the Excel file or open it for download
-const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-const url = window.URL.createObjectURL(blob);
-const a = document.createElement('a');
-a.href = url;
-a.download = 'exported_data.xlsx';
-document.body.appendChild(a);
-a.click();
-window.URL.revokeObjectURL(url);
+  // Save the Excel file or open it for download
+  const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'exported_data.xlsx';
+  document.body.appendChild(a);
+  a.click();
+  window.URL.revokeObjectURL(url);
 
+  document.body.removeChild(a);
+  
+  const elementsToDelete = document.querySelectorAll('canvas.removeable');
+  for (const element of elementsToDelete) {
+    element.remove();
+  }
 }
 
 const isShowModal = ref(false)
