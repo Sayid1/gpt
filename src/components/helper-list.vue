@@ -1,13 +1,16 @@
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useHelperCache, useChatCache, helperObj } from '../utils'
 import { useGlobalState } from '../store'
 import Modal from './modal.vue'
+import message from './message/message.js'
 
 const { helper, remove } = useHelperCache()
 const { chat, set, remove: removeChat } = useChatCache()
 const store = useGlobalState()
 const isShowModal = ref(false)
+const router = useRouter()
 
 let removeHelperId
 function confirmRemoveHelper(id) {
@@ -15,7 +18,16 @@ function confirmRemoveHelper(id) {
   showModal()
 }
 
+function checkChat() {
+  if (store.isGenerating.value) {
+    message({ type: 'warning', message: '对话进行中，请稍后再试'})
+    return true
+  }
+  return false
+}
+
 function removeHelper() {
+  if (checkChat()) return
   if (removeHelperId === store.activeChatId.value) {
     //todo 删除助手对话
     store.msgRecord.value.splice(0, store.msgRecord.value.length)
@@ -29,6 +41,8 @@ function removeHelper() {
 }
 
 function clickHelper(id) {
+  if (checkChat()) return
+  router.push('/')
   store.url.value = 'http://8.129.170.108/api/xfws?assistantId=' + id
   store.showChat.value = true
   store.activeChatId.value = id
@@ -81,9 +95,9 @@ function showModal() {
         'list_item__active': store.activeChatId.value === id
       }"
     >
-      <div class="icon_bot">
+      <div class="icon_bot" :style="{color: helperObj[id].badgeBg}">
         <span role="img" class="anticon" style="pointer-events: none;"><svg version="1.1" width="24px" height="26px" viewBox="0 0 24.0 26.0"><defs><clipPath id="i01"><path d="M1440,0 L1440,796 L0,796 L0,0 L1440,0 Z"></path></clipPath><clipPath id="i11"><path d="M14.6,0.923760431 L22.6583302,5.57623957 C23.6484137,6.14786451 24.2583302,7.20427097 24.2583302,8.34752086 L24.2583302,17.6524791 C24.2583302,18.795729 23.6484137,19.8521355 22.6583302,20.4237604 L14.6,25.0762396 C13.6099166,25.6478645 12.3900834,25.6478645 11.4,25.0762396 L3.34166975,20.4237604 C2.35158631,19.8521355 1.74166975,18.795729 1.74166975,17.6524791 L1.74166975,8.34752086 C1.74166975,7.20427097 2.35158631,6.14786451 3.34166975,5.57623957 L11.4,0.923760431 C12.3900834,0.352135487 13.6099166,0.352135487 14.6,0.923760431 Z"></path></clipPath></defs><g transform="translate(-21.0 -192.0)"><g clip-path="url(#i01)"><g transform="translate(20.0 192.0)"><g clip-path="url(#i11)"><polygon points="1.74166975,0.495041723 24.2583302,0.495041723 24.2583302,25.5049583 1.74166975,25.5049583 1.74166975,0.495041723" stroke="none" fill="currentColor"></polygon></g></g></g></g></svg></span>
-        <span :style="{color: helperObj[id].badgeBg}">{{ helperObj[id].badge }}</span>
+        <span class="text-white">{{ helperObj[id].badge }}</span>
       </div>
       <div class="info">
         <div class="title">{{ helperObj[id].title }}</div>

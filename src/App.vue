@@ -100,19 +100,19 @@ window.copyCode = function(id) {
         </div>
       </div>
 
-      <div class="silder-content" v-show="!sidebarCollapse">
+      <div class="silder-content" v-show="!sidebarCollapse" :style="{height: store.userInfo.id ? 'calc(100% - 310px)' : 'calc(100% - 246px)'}">
         <helper-list v-show="store.activeTab.value !== 'history-chat'" />
         <history-chat v-show="store.activeTab.value === 'history-chat'" />
       </div>
-      <div v-show="!sidebarCollapse" class="absolute bottom-4 inset-x-0 w-[266px] h-[102px] py-2">
-        <div class="text-gray-600 pl-4 mb-4">
+      <div v-show="!sidebarCollapse" class="absolute bottom-4 inset-x-0 w-[266px] py-2" :class="{'h-[102px]': store.userInfo.id}">
+        <div class="text-gray-600 pl-4 mb-4" v-if="store.userInfo.id">
           <p class="mb-1">设备号：{{ store.userInfo.mac }}</p>
-          <p>服务有效期：{{ dayjs(store.userInfo.expiredTime).format('YYYY-MM-DD HH:mm:ss') }}</p>
+          <p>服务有效期：{{ dayjs(store.userInfo.chatExpiredTime ).format('YYYY-MM-DD HH:mm:ss') }}</p>
         </div>
-        <div class="grid grid-cols-3 divide-x  text-sm text-center">
+        <div class="grid grid-cols-1 divide-x text-sm text-center" :class="{'!grid-cols-3': store.userInfo.id}">
           <span @click.stop="toPage('/contact-us')" class="cursor-pointer text-white">联系我们</span>
-          <span @click.stop="toPage('/orders')" class="cursor-pointer text-white">我的订单</span>
-          <span @click.stop="toPage('/plans')" class="cursor-pointer text-white">购买套餐</span>
+          <span v-if="store.userInfo.id" @click.stop="toPage('/orders')" class="cursor-pointer text-white">我的订单</span>
+          <span v-if="store.userInfo.id" @click.stop="toPage('/plans')" class="cursor-pointer text-white">购买套餐</span>
         </div>
       </div>
     </div>
@@ -326,7 +326,6 @@ window.copyCode = function(id) {
   z-index: 5;
 }
 .silder-content {
-  height: calc(100% - 310px);
   padding-top: 8px;
   position: relative;
   width: 100%;

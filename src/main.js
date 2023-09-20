@@ -15,9 +15,15 @@ import Plans from './components/plans.vue'
 import ContactUs from './components/contact-us.vue'
 
 const store = useGlobalState()
-const { data, error, isFetching } = await useFetch('http://8.129.170.108/api/register?account=CHATGPT00009999&code=CHATGPT00009999&password=CHATGPT00009999&type=VISITOR').post().json()
-store.userInfo = data.value.data
-console.log(store.userInfo)
+const urlParams = new URLSearchParams(window.location.search)
+const sno = urlParams.get('sno')
+if (sno){
+  localStorage.setItem('sno', sno)
+  // CHATGPT00009999
+  const { data, error, isFetching } = await useFetch(`http://8.129.170.108/api/register?account=${sno}&code=${sno}&password=${sno}&type=VISITOR`).post().json()
+  store.userInfo = data.value.data
+  console.log(store.userInfo)
+}
 // const marked = new Marked({
 //   mangle: false,
 //   headerIds: false,

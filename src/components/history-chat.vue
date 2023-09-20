@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref, nextTick, onMounted, onUnmounted, toRefs } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { useChatCache, helperObj } from '../utils'
 import { useGlobalState } from '../store'
 import Modal from './modal.vue'
@@ -58,15 +58,17 @@ function updateChat(id, index) {
 }
 
 function clickHistoryChatItem(id) {
-  console.log(5)
   if (checkChat()) return
   router.push('/')
-  store.showChat.value = true
-  // 设置侧边栏激活的对话id
   store.activeChatId.value = id
-  store.url.value = 'http://8.129.170.108/api/xfws'
-  // 设置当前的对话消息记录
-  store.msgRecord.value = JSON.parse(JSON.stringify(chat.value[id].chatRecords || []))
+  // nextTick(() => {
+    store.showChat.value = true
+    // 设置侧边栏激活的对话id
+    
+    store.url.value = 'http://8.129.170.108/api/xfws'
+    // 设置当前的对话消息记录
+    store.msgRecord.value = JSON.parse(JSON.stringify(chat.value[id].chatRecords || []))
+  // })
 }
 
 function closeModal() {

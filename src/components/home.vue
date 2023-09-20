@@ -10,9 +10,9 @@ const store = useGlobalState()
 const chatRef = ref(null)
 
 function enter() {
-  nextTick(() => {
-    chatRef.value.scrollIntoView()
-  })
+  // nextTick(() => {
+  //   chatRef.value.scrollIntoView()
+  // })
 }
 </script>
 

@@ -80,6 +80,10 @@ async function loopStatus() {
   const { data, error, isFetching, } = await useFetch(`http://8.129.170.108/api/queryOrderStatus?orderNo=${orderInfo.value.orderId}`).json()
   if (data.value.data.orderStatus === 'SUCCESS') {
     message('购买成功！')
+    const urlParams = new URLSearchParams(window.location.search)
+    const sno = urlParams.get('sno')
+    const { data: userData } = await useFetch(`http://8.129.170.108/api/register?account=${sno}&code=${sno}&password=${sno}&type=VISITOR`).post().json()
+    store.userInfo = userData.value.data
     if (payStatusTimer.value) clearInterval(payStatusTimer.value)
     router.push('/orders')
     return true

@@ -280,6 +280,11 @@
     lodash.merge "^4.6.2"
     postcss-selector-parser "6.0.10"
 
+"@types/katex@^0.16.2":
+  version "0.16.3"
+  resolved "https://registry.npmmirror.com/@types/katex/-/katex-0.16.3.tgz#a341c89705145b7dd8e2a133b282a133eabe6076"
+  integrity sha512-CeVMX9EhVUW8MWnei05eIRks4D5Wscw/W9Byz1s3PA+yJvcdvq9SaDjiUKvRvEgjpdTyJMjQA43ae4KTwsvOPg==
+
 "@types/node@^14.0.1":
   version "14.18.61"
   resolved "https://registry.npmmirror.com/@types/node/-/node-14.18.61.tgz#752097010d85f6279b3069811bf0e99eba996096"
@@ -732,6 +737,11 @@ commander@^4.0.0:
   version "4.1.1"
   resolved "https://registry.npmmirror.com/commander/-/commander-4.1.1.tgz"
   integrity sha512-NOKm8xhkzAjzFx8B2v5OAHT+u5pRQc2UCa2Vq9jYL/31o2wi9mxBA7LIFs3sV5VSC49z6pEhfbMULvShKj26WA==
+
+commander@^8.3.0:
+  version "8.3.0"
+  resolved "https://registry.npmmirror.com/commander/-/commander-8.3.0.tgz#4837ea1b2da67b9c616a67afbb0fafee567bca66"
+  integrity sha512-OkTL9umf+He2DZkUq8f8J9of7yL6RJKI24dVITBmNfZBmri9zYZQrKkuXiKhyfPSu8tUhnVBB1iKXevvnlR4Ww==
 
 compress-commons@^4.1.2:
   version "4.1.2"
@@ -1291,6 +1301,13 @@ jszip@^3.5.0, jszip@^3.7.1:
     readable-stream "~2.3.6"
     setimmediate "^1.0.5"
 
+katex@^0.16.8:
+  version "0.16.8"
+  resolved "https://registry.npmmirror.com/katex/-/katex-0.16.8.tgz#89b453f40e8557f423f31a1009e9298dd99d5ceb"
+  integrity sha512-ftuDnJbcbOckGY11OO+zg3OofESlbR5DRl2cmN8HeWeeFIV7wTXvAOx8kEjZjobhA+9wh2fbKeO6cdcA9Mnovg==
+  dependencies:
+    commander "^8.3.0"
+
 lazystream@^1.0.0:
   version "1.0.1"
   resolved "https://registry.npmmirror.com/lazystream/-/lazystream-1.0.1.tgz#494c831062f1f9408251ec44db1cba29242a2638"
@@ -1570,6 +1587,14 @@ marked-highlight@^2.0.6:
   version "2.0.6"
   resolved "https://registry.npmmirror.com/marked-highlight/-/marked-highlight-2.0.6.tgz"
   integrity sha512-xjA/C6xgXAfkkYg+YHnxdjmgFyTDtqqu8KbZiqh+COJ7PuzR15kqa+rPrs6pf/2jExXtG1jyCFUHmv9s0Bi/dQ==
+
+marked-katex-extension@^3.0.6:
+  version "3.0.6"
+  resolved "https://registry.npmmirror.com/marked-katex-extension/-/marked-katex-extension-3.0.6.tgz#48d93aa69a621f7cdb761543ee37574f88755c29"
+  integrity sha512-X1XPjXVFcE0zo6oCcHuIOUrFCzUNMOPXqh05c18kNEB/htLSohrJTzOSWhDnNyVynoTiYrl8IhwZu6C0lTNFAQ==
+  dependencies:
+    "@types/katex" "^0.16.2"
+    katex "^0.16.8"
 
 marked@^9.0.0:
   version "9.0.2"

@@ -5,28 +5,28 @@ import chatItem from './chat.vue'
 const store = useGlobalState()
 const containerRef = ref(null)
 
-watch(store.msgRecord.value, () => {
-  scrollIntoView()
-}, { deep: true })
+// watch(store.msgRecord.value, () => {
+//   scrollIntoView()
+// }, { deep: true })
 
-onMounted(scrollIntoView)
+// onMounted(scrollIntoView)
 
-function scrollIntoView() {
-  containerRef.value.scrollIntoView({
-    // behavior: 'smooth',
-    block: "end",
-    inline: "nearest"
-  });
-}
+// function scrollIntoView() {
+//   containerRef.value.scrollIntoView({
+//     // behavior: 'smooth',
+//     block: "end",
+//     inline: "nearest"
+//   });
+// }
 
-defineExpose({
-  scrollIntoView
-})
+// defineExpose({
+//   scrollIntoView
+// })
 
 </script>
 
 <template>
-  <div ref="containerRef" class="my-10">
+  <div ref="containerRef" class="mt-10">
     <chat-item :record="record" :last="i === store.msgRecord.value.length - 1" v-for="(record, i) in store.msgRecord.value" :key="i" />
   </div>
 </template>
