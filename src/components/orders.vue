@@ -26,7 +26,7 @@ const orders = computed(() => {
   return (data.value?.data.map(order => {
     order.goodsSnapchat = JSON.parse(order.goodsSnapchat)
     return order
-  }) || [])
+  }).reverse() || [])
 })
 </script>
 
@@ -103,7 +103,7 @@ const orders = computed(() => {
                 <td
                 class="border-b border-slate-100 dark:border-slate-700 p-4 pr-8 text-slate-500 dark:text-slate-400"
                 >
-                {{ dayjs(order.goodsSnapchat.createTime).format('YYYY-MM-DD HH:mm:ss') }}
+                {{ dayjs(order.createDate).format('YYYY-MM-DD HH:mm:ss') }}
               </td>
               <td
               class="border-b border-slate-100 dark:border-slate-700 p-4 pr-8 text-slate-500 dark:text-slate-400"

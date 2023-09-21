@@ -64,9 +64,9 @@ function renewal() {
     <div class="chat_content">
       <img src="../assets/bot.png" class="user_image" alt="">
       <div class="content_welcome_gpt">
-        <img src="../assets/welcome-right.png" alt="">
-        <p class="hello">您好，我是讯飞星火认知大模型</p>
-        <p class="	mt-2.5">能够学习和理解人类的语言，进行多轮对话</p>
+        <!-- <img src="../assets/welcome-right.png" alt=""> -->
+        <p class="hello" style="font-size: 16px;">您好，我是讯飞星火认知大模型</p>
+        <p class="">能够学习和理解人类的语言，进行多轮对话</p>
         <p class="">回答问题，高效便捷地帮助人们获取信息、知识和灵感</p>
       </div>
     </div>
@@ -74,7 +74,7 @@ function renewal() {
       <div class="welcome_prompt">
         <div class="flex flex-col gap-y-2  text-[#4257e9]">
           <p class="text-gray-600">您可以在下方的输入框中输入您的问题，如：</p>
-          <p class="cursor-pointer" @click="clickQuestion(q)" v-for="q in commonQuestions" :key="q">{{ q }}</p>
+          <p class="cursor-pointer hover:font-bold" @click="clickQuestion(q)" v-for="q in commonQuestions" :key="q">{{ q }}</p>
         </div>
       </div>
     </div>
@@ -117,7 +117,7 @@ function renewal() {
     border-radius: 8px;
     box-sizing: border-box;
     margin: 0 auto 56px;
-    padding: 25px 24px;
+    padding: 20px 28px;
     width: 100%;
   }
   // @media screen and (max-width: 1300px) {
@@ -169,11 +169,11 @@ function renewal() {
     width: 26px;
   }
   .content_welcome_gpt {
-    background: #d0e3ff;
+    background: #e2eeff;
     border-radius: 8px;
     box-sizing: border-box;
     color: #41416d;
-    margin-bottom: 56px;
+    margin-bottom: 30px;
     padding: 25px 38px;
     position: relative;
     width: 100%;

@@ -72,7 +72,7 @@ onMounted(() => {
     if (markdownBody) {
       const tables = Array.from(markdownBody.getElementsByTagName('table'))
       if(tables.length) {
-        console.log(tables)
+        // console.log(tables)
         // document.querySelector(`#markdown_body_${id} .excel`)
         showExcel.value = true
       }
@@ -120,7 +120,7 @@ function exportExcel() {
 const exportWord = () => {
   if (checkChat()) return
   const dom = document.querySelector(`#markdown_body_${id} .prose`)
-  const fileName = 'word.doc'
+  const fileName = `word_${new Date().getTime()}.doc`
   if (!dom) {
     return Promise.reject("未获取到元素选择器对应的元素");
   }
@@ -178,9 +178,25 @@ function pptExport(i){
           }
         }
       }
-  }			
-  const url =	"https://mindshow.fun/#/home?channel=miclink&markdown="+encodeURIComponent(content);
-  window.open(url,"_blank");		
+  }
+  const urlParams = new URLSearchParams(window.location.search)
+  const ppt = urlParams.get('ppt')
+  const sno = urlParams.get('sno')
+  // const url =	"https://mindshow.fun/#/home?channel=miclink&markdown="+encodeURIComponent(content);
+  // window.open(url,"_blank");		
+  if(ppt=='iframe'){ 
+    if(!sno){ 
+      sno = 'MicLink'; 
+    } 
+    var tdata = encodeURIComponent(content); 
+    var tkey = new Date().getTime(); 
+    localStorage.setItem(tkey,tdata)
+    const url = "http://chat.miclink.net/ppt.html?sno="+sno+"&markdown="+tkey;
+    window.open(url,"_blank"); 
+  }else{ 
+    const url = "https://mindshow.fun/#/home?channel=miclink&markdown="+encodeURIComponent(content); 
+    window.open(url,"_blank");  
+  } 
 }
 
 function table2json(table) {
@@ -201,7 +217,8 @@ function table2json(table) {
     theadRow.querySelectorAll('th').forEach((header, j) => {
       const headerText = header.textContent;
       const text = cells[j].textContent
-      const numberText = Number(text)
+      const num = text.replace(/[^0-9]/g, '')
+      const numberText = Number(num)
       if (i === 0) legendData.push(headerText)
       if (j === 0) labelData.push(text)
       else {
@@ -214,9 +231,9 @@ function table2json(table) {
     // data.push(rowData);
   });
   // return data
-  console.log(labelData)
-  console.log(seriData)
-  console.log(legendData)
+  // console.log(labelData)
+  // console.log(seriData)
+  // console.log(legendData)
   return {
     legendData,
     seriData,
@@ -304,6 +321,7 @@ function getPiechart(data) {
     },
     options: {
       animation: false,
+      // backgroundColor: "#fff"
     },
   });
   window.pieChart = pieChart
@@ -327,9 +345,12 @@ async function exportChart() {
     const rows = tables[i].querySelectorAll('tr');
     
     charts.forEach((chart, i) => {
-      console.log(chart)
-      console.log(chart.height)
-      const chartImage = chart.toBase64Image();
+      // console.log(chart)
+      // console.log(chart.height)
+      const chartImage = chart.toBase64Image(({
+        pixelRatio: 2, // 导出图片的分辨率比例，默认为1，即图片的分辨率为屏幕分辨率的一倍
+        backgroundColor: '#fff' // 导出图片的背景色
+      }));
       const image = workbook.addImage({
         base64: chartImage,
         extension: "png"
@@ -373,7 +394,7 @@ async function exportChart() {
   const url = window.URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'exported_data.xlsx';
+  a.download = `excel_${new Date().getTime()}.xlsx`;
   document.body.appendChild(a);
   a.click();
   window.URL.revokeObjectURL(url);
@@ -384,6 +405,7 @@ async function exportChart() {
   for (const element of elementsToDelete) {
     element.remove();
   }
+  closeModal()
 }
 
 const isShowModal = ref(false)
@@ -411,7 +433,7 @@ function showModal() {
           </svg>
         </div>
         <div v-else class="w-full">
-          <div :id="'markdown_body_' + id" class="content_welcome_gpt mb-6 bg-[rgb(255_255_255_/_57%)] pt-[25px] pb-[15px] px-[38px]">
+          <div :id="'markdown_body_' + id" class="content_welcome_gpt mb-6 bg-[rgb(255_255_255_/_100%)] pt-[25px] pb-[15px] px-[38px]">
             <!-- <div v-html="marked.parse(props.record.content)"></div> -->
             <markdown :content="props.record.content" />
             <div class="flex justify-end mt-6">
@@ -428,20 +450,20 @@ function showModal() {
                   </svg>
                   复制
                 </span>
-                <span class="flex text-xs items-center gap-x-1 cursor-pointer" @click.stop="exportWord">
-                  <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="w-4 h-4 stroke-[#7e84a3] fill-[#7e84a3]" viewBox="0,0,256,256"><g fill-rule="nonzero" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal"><g transform="scale(5.12,5.12)"><path d="M28.875,0c-0.01953,0.00781 -0.04297,0.01953 -0.0625,0.03125l-28,5.3125c-0.47656,0.08984 -0.82031,0.51172 -0.8125,1v37.3125c-0.00781,0.48828 0.33594,0.91016 0.8125,1l28,5.3125c0.28906,0.05469 0.58984,-0.01953 0.82031,-0.20703c0.22656,-0.1875 0.36328,-0.46484 0.36719,-0.76172v-5h17c1.09375,0 2,-0.90625 2,-2v-34c0,-1.09375 -0.90625,-2 -2,-2h-17v-5c0.00391,-0.28906 -0.12109,-0.5625 -0.33594,-0.75391c-0.21484,-0.19141 -0.50391,-0.28125 -0.78906,-0.24609zM28,2.1875v4.5c-0.05859,0.19531 -0.05859,0.39844 0,0.59375v35.53125c-0.02734,0.13281 -0.02734,0.27344 0,0.40625v4.59375l-26,-4.96875v-35.6875zM30,8h17v34h-17v-5h14v-2h-14v-6h14v-2h-14v-5h14v-2h-14v-5h14v-2h-14zM4.625,15.65625l3.8125,18.6875h3.75l2.46875,-11.96875c0.11328,-0.55078 0.21875,-1.27344 0.28125,-2.125h0.03125c0.02734,0.77344 0.08984,1.5 0.21875,2.125l2.40625,11.96875h3.625l3.84375,-18.6875h-3.3125l-2,12.46875c-0.11719,0.70313 -0.19141,1.40625 -0.21875,2.09375h-0.03125c-0.06641,-0.87891 -0.13281,-1.53906 -0.21875,-2l-2.375,-12.5625h-3.5l-2.625,12.40625c-0.16797,0.79297 -0.28516,1.51953 -0.3125,2.1875h-0.0625c-0.03906,-0.89453 -0.09766,-1.625 -0.1875,-2.15625l-2.03125,-12.4375z"></path></g></g></svg>
+                <span class="flex text-xs items-center gap-x-1 cursor-pointer text-[#1d93ff]" @click.stop="exportWord">
+                  <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="w-4 h-4 stroke-[#1d93ff] fill-[#1d93ff]" viewBox="0,0,256,256"><g fill-rule="nonzero" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal"><g transform="scale(5.12,5.12)"><path d="M28.875,0c-0.01953,0.00781 -0.04297,0.01953 -0.0625,0.03125l-28,5.3125c-0.47656,0.08984 -0.82031,0.51172 -0.8125,1v37.3125c-0.00781,0.48828 0.33594,0.91016 0.8125,1l28,5.3125c0.28906,0.05469 0.58984,-0.01953 0.82031,-0.20703c0.22656,-0.1875 0.36328,-0.46484 0.36719,-0.76172v-5h17c1.09375,0 2,-0.90625 2,-2v-34c0,-1.09375 -0.90625,-2 -2,-2h-17v-5c0.00391,-0.28906 -0.12109,-0.5625 -0.33594,-0.75391c-0.21484,-0.19141 -0.50391,-0.28125 -0.78906,-0.24609zM28,2.1875v4.5c-0.05859,0.19531 -0.05859,0.39844 0,0.59375v35.53125c-0.02734,0.13281 -0.02734,0.27344 0,0.40625v4.59375l-26,-4.96875v-35.6875zM30,8h17v34h-17v-5h14v-2h-14v-6h14v-2h-14v-5h14v-2h-14v-5h14v-2h-14zM4.625,15.65625l3.8125,18.6875h3.75l2.46875,-11.96875c0.11328,-0.55078 0.21875,-1.27344 0.28125,-2.125h0.03125c0.02734,0.77344 0.08984,1.5 0.21875,2.125l2.40625,11.96875h3.625l3.84375,-18.6875h-3.3125l-2,12.46875c-0.11719,0.70313 -0.19141,1.40625 -0.21875,2.09375h-0.03125c-0.06641,-0.87891 -0.13281,-1.53906 -0.21875,-2l-2.375,-12.5625h-3.5l-2.625,12.40625c-0.16797,0.79297 -0.28516,1.51953 -0.3125,2.1875h-0.0625c-0.03906,-0.89453 -0.09766,-1.625 -0.1875,-2.15625l-2.03125,-12.4375z"></path></g></g></svg>
                   Word
                 </span>
-                <span class="text-xs items-center gap-x-1 hidden cursor-pointer" :class="{'!flex': showExcel}" @click.stop="exportExcel">
-                  <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="w-4 h-4 stroke-[#7e84a3] fill-[#7e84a3]" viewBox="0,0,256,256"><g fill-rule="nonzero" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal"><g transform="scale(5.12,5.12)"><path d="M28.875,0c-0.01953,0.00781 -0.04297,0.01953 -0.0625,0.03125l-28,5.3125c-0.47656,0.08984 -0.82031,0.51172 -0.8125,1v37.3125c-0.00781,0.48828 0.33594,0.91016 0.8125,1l28,5.3125c0.28906,0.05469 0.58984,-0.01953 0.82031,-0.20703c0.22656,-0.1875 0.36328,-0.46484 0.36719,-0.76172v-5h17c1.09375,0 2,-0.90625 2,-2v-34c0,-1.09375 -0.90625,-2 -2,-2h-17v-5c0.00391,-0.28906 -0.12109,-0.5625 -0.33594,-0.75391c-0.21484,-0.19141 -0.50391,-0.28125 -0.78906,-0.24609zM28,2.1875v4.34375c-0.13281,0.27734 -0.13281,0.59766 0,0.875v35.40625c-0.02734,0.13281 -0.02734,0.27344 0,0.40625v4.59375l-26,-4.96875v-35.6875zM30,8h17v34h-17v-5h4v-2h-4v-6h4v-2h-4v-5h4v-2h-4v-5h4v-2h-4zM36,13v2h8v-2zM6.6875,15.6875l5.46875,9.34375l-5.96875,9.34375h5l3.25,-6.03125c0.22656,-0.58203 0.375,-1.02734 0.4375,-1.3125h0.03125c0.12891,0.60938 0.25391,1.02344 0.375,1.25l3.25,6.09375h4.96875l-5.75,-9.4375l5.59375,-9.25h-4.6875l-2.96875,5.53125c-0.28516,0.72266 -0.48828,1.29297 -0.59375,1.65625h-0.03125c-0.16406,-0.60937 -0.35156,-1.15234 -0.5625,-1.59375l-2.6875,-5.59375zM36,20v2h8v-2zM36,27v2h8v-2zM36,35v2h8v-2z"></path></g></g></svg>
+                <span class="text-xs items-center gap-x-1 hidden cursor-pointer text-[#27c45c]" :class="{'!flex': showExcel}" @click.stop="exportExcel">
+                  <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="w-4 h-4 stroke-[#27c45c] fill-[#27c45c]" viewBox="0,0,256,256"><g fill-rule="nonzero" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal"><g transform="scale(5.12,5.12)"><path d="M28.875,0c-0.01953,0.00781 -0.04297,0.01953 -0.0625,0.03125l-28,5.3125c-0.47656,0.08984 -0.82031,0.51172 -0.8125,1v37.3125c-0.00781,0.48828 0.33594,0.91016 0.8125,1l28,5.3125c0.28906,0.05469 0.58984,-0.01953 0.82031,-0.20703c0.22656,-0.1875 0.36328,-0.46484 0.36719,-0.76172v-5h17c1.09375,0 2,-0.90625 2,-2v-34c0,-1.09375 -0.90625,-2 -2,-2h-17v-5c0.00391,-0.28906 -0.12109,-0.5625 -0.33594,-0.75391c-0.21484,-0.19141 -0.50391,-0.28125 -0.78906,-0.24609zM28,2.1875v4.34375c-0.13281,0.27734 -0.13281,0.59766 0,0.875v35.40625c-0.02734,0.13281 -0.02734,0.27344 0,0.40625v4.59375l-26,-4.96875v-35.6875zM30,8h17v34h-17v-5h4v-2h-4v-6h4v-2h-4v-5h4v-2h-4v-5h4v-2h-4zM36,13v2h8v-2zM6.6875,15.6875l5.46875,9.34375l-5.96875,9.34375h5l3.25,-6.03125c0.22656,-0.58203 0.375,-1.02734 0.4375,-1.3125h0.03125c0.12891,0.60938 0.25391,1.02344 0.375,1.25l3.25,6.09375h4.96875l-5.75,-9.4375l5.59375,-9.25h-4.6875l-2.96875,5.53125c-0.28516,0.72266 -0.48828,1.29297 -0.59375,1.65625h-0.03125c-0.16406,-0.60937 -0.35156,-1.15234 -0.5625,-1.59375l-2.6875,-5.59375zM36,20v2h8v-2zM36,27v2h8v-2zM36,35v2h8v-2z"></path></g></g></svg>
                   Excel
                 </span>
-                <span class="text-xs items-center gap-x-1 cursor-pointer hidden " :class="{'!flex': showExcel}"  @click.stop="showModal">
-                  <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="w-4 h-4 stroke-[#7e84a3] fill-[#7e84a3]" viewBox="0,0,256,256"><g fill-rule="nonzero" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal"><g transform="scale(5.12,5.12)"><path d="M45,2c-1.10547,0 -2,0.89453 -2,2c0,0.29297 0.07422,0.5625 0.1875,0.8125l-8,11.1875c-0.0625,-0.00391 -0.125,0 -0.1875,0c-0.39844,0 -0.78125,0.10938 -1.09375,0.3125l-6.90625,-3.4375c-0.06641,-1.04687 -0.9375,-1.875 -2,-1.875c-1.10547,0 -2,0.89453 -2,2c0,0.10547 0.01563,0.21094 0.03125,0.3125l-7.3125,5.8125c-0.22266,-0.08594 -0.46484,-0.125 -0.71875,-0.125c-1,0 -1.82031,0.73047 -1.96875,1.6875l-6.8125,2.75c-0.33984,-0.26562 -0.75781,-0.4375 -1.21875,-0.4375c-1.10547,0 -2,0.89453 -2,2c0,1.10547 0.89453,2 2,2c1.00781,0 1.83203,-0.74609 1.96875,-1.71875l6.8125,-2.71875c0.33984,0.26563 0.75781,0.4375 1.21875,0.4375c1.10547,0 2,-0.89453 2,-2c0,-0.10547 -0.01562,-0.21094 -0.03125,-0.3125l7.3125,-5.8125c0.22266,0.08594 0.46484,0.125 0.71875,0.125c0.39844,0 0.78125,-0.10937 1.09375,-0.3125l6.90625,3.4375c0.06641,1.04688 0.9375,1.875 2,1.875c1.10547,0 2,-0.89453 2,-2c0,-0.29297 -0.07422,-0.5625 -0.1875,-0.8125l8,-11.1875c0.0625,0.00391 0.125,0 0.1875,0c1.10547,0 2,-0.89453 2,-2c0,-1.10547 -0.89453,-2 -2,-2zM41,15v35h8v-35zM43,17h4v31h-4zM21,24v26h8v-26zM23,26h4v22h-4zM31,29v21h8v-21zM33,31h4v17h-4zM11,32v18h8v-18zM13,34h4v14h-4zM1,36v14h8v-14zM3,38h4v10h-4z"></path></g></g></svg>
+                <span class="text-xs items-center gap-x-1 cursor-pointer hidden text-[#1dd0f0]" :class="{'!flex': showExcel}"  @click.stop="showModal">
+                  <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="w-4 h-4 stroke-[#1dd0f0] fill-[#1dd0f0]" viewBox="0,0,256,256"><g fill-rule="nonzero" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal"><g transform="scale(5.12,5.12)"><path d="M45,2c-1.10547,0 -2,0.89453 -2,2c0,0.29297 0.07422,0.5625 0.1875,0.8125l-8,11.1875c-0.0625,-0.00391 -0.125,0 -0.1875,0c-0.39844,0 -0.78125,0.10938 -1.09375,0.3125l-6.90625,-3.4375c-0.06641,-1.04687 -0.9375,-1.875 -2,-1.875c-1.10547,0 -2,0.89453 -2,2c0,0.10547 0.01563,0.21094 0.03125,0.3125l-7.3125,5.8125c-0.22266,-0.08594 -0.46484,-0.125 -0.71875,-0.125c-1,0 -1.82031,0.73047 -1.96875,1.6875l-6.8125,2.75c-0.33984,-0.26562 -0.75781,-0.4375 -1.21875,-0.4375c-1.10547,0 -2,0.89453 -2,2c0,1.10547 0.89453,2 2,2c1.00781,0 1.83203,-0.74609 1.96875,-1.71875l6.8125,-2.71875c0.33984,0.26563 0.75781,0.4375 1.21875,0.4375c1.10547,0 2,-0.89453 2,-2c0,-0.10547 -0.01562,-0.21094 -0.03125,-0.3125l7.3125,-5.8125c0.22266,0.08594 0.46484,0.125 0.71875,0.125c0.39844,0 0.78125,-0.10937 1.09375,-0.3125l6.90625,3.4375c0.06641,1.04688 0.9375,1.875 2,1.875c1.10547,0 2,-0.89453 2,-2c0,-0.29297 -0.07422,-0.5625 -0.1875,-0.8125l8,-11.1875c0.0625,0.00391 0.125,0 0.1875,0c1.10547,0 2,-0.89453 2,-2c0,-1.10547 -0.89453,-2 -2,-2zM41,15v35h8v-35zM43,17h4v31h-4zM21,24v26h8v-26zM23,26h4v22h-4zM31,29v21h8v-21zM33,31h4v17h-4zM11,32v18h8v-18zM13,34h4v14h-4zM1,36v14h8v-14zM3,38h4v10h-4z"></path></g></g></svg>
                   图表
                 </span>
-                <span class="text-xs items-center gap-x-1 cursor-pointer hidden " :class="{'!flex': store.activeChatId.value === 'kroow5t8nyx3_v1'}"  @click.stop="pptExport">
-                  <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="w-4 h-4 stroke-[#7e84a3] fill-[#7e84a3]" viewBox="0,0,256,256"><g fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal"><g transform="scale(9.84615,9.84615)"><path d="M8,0c-2.19922,0 -4,1.80078 -4,4v7h-3c-0.60156,0 -1,0.5 -1,1v6c0,0.5 0.39844,1 1,1h3v3c0,2.19922 1.80078,4 4,4h12c2.19922,0 4,-1.80078 4,-4v-14c0,-1.10156 -0.98828,-2.11328 -2.6875,-3.8125c-0.30078,-0.19922 -0.51172,-0.48828 -0.8125,-0.6875c-0.19922,-0.30078 -0.48828,-0.51172 -0.6875,-0.8125c-1.69922,-1.69922 -2.71094,-2.6875 -3.8125,-2.6875zM8,2h7.3125c0.69922,0.19922 0.6875,1.10156 0.6875,2v3c0,0.60156 0.39844,1 1,1h3c1,0 2,0 2,1v13c0,1.10156 -0.89844,2 -2,2h-12c-1.10156,0 -2,-0.89844 -2,-2v-3h11c0.60156,0 1,-0.5 1,-1v-6c0,-0.5 -0.39844,-1 -1,-1h-11v-7c0,-1.10156 0.89844,-2 2,-2zM3.8125,12.1875c0.80078,0 1.28906,0.19922 1.6875,0.5c0.39844,0.30078 0.59375,0.8125 0.59375,1.3125c0,0.5 -0.19922,1.01172 -0.5,1.3125c-0.39844,0.39844 -1.08203,0.59375 -1.78125,0.59375h-0.3125v1.78125c0,0.10156 -0.09375,0.125 -0.09375,0.125h-1.3125c-0.10156,0 -0.09375,-0.125 -0.09375,-0.125v-5.28125c0,-0.10156 -0.00781,-0.09375 0.09375,-0.09375c0.39844,-0.10156 1.01953,-0.125 1.71875,-0.125zM8.90625,12.1875c0.80078,0 1.28906,0.19922 1.6875,0.5c0.39844,0.30078 0.59375,0.8125 0.59375,1.3125c0,0.5 -0.19531,1.01172 -0.59375,1.3125c-0.39844,0.39844 -1.08203,0.59375 -1.78125,0.59375h-0.3125v1.78125c0,0.10156 -0.09375,0.125 -0.09375,0.125h-1.21875c-0.10156,0 -0.09375,-0.125 -0.09375,-0.125v-5.28125c0,-0.10156 -0.00781,-0.09375 0.09375,-0.09375c0.39844,-0.10156 1.01953,-0.125 1.71875,-0.125zM12,12.1875h4c0.10156,0 0.09375,0.125 0.09375,0.125v1c0,0.10156 -0.09375,0.09375 -0.09375,0.09375h-1.3125v4.1875c0,0.10156 -0.09375,0.09375 -0.09375,0.09375h-1.1875c-0.10156,0 -0.09375,-0.09375 -0.09375,-0.09375v-4.1875h-1.3125c-0.10156,0 -0.09375,-0.09375 -0.09375,-0.09375v-1c0,-0.10156 0.09375,-0.125 0.09375,-0.125zM3.40625,13.3125v1.375h0.28125c0.60156,0 0.90625,-0.28906 0.90625,-0.6875c0.10156,-0.60156 -0.48047,-0.6875 -0.78125,-0.6875zM8.5,13.3125v1.375h0.3125c0.60156,0 0.875,-0.28906 0.875,-0.6875c0,-0.60156 -0.48047,-0.6875 -0.78125,-0.6875z"></path></g></g></svg>
+                <span class="text-xs items-center gap-x-1 cursor-pointer hidden text-[#fd613f]" :class="{'!flex': store.activeChatId.value === 'kroow5t8nyx3_v1'}"  @click.stop="pptExport">
+                  <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="w-4 h-4 stroke-[#fd613f] fill-[#fd613f]" viewBox="0,0,256,256"><g fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal"><g transform="scale(9.84615,9.84615)"><path d="M8,0c-2.19922,0 -4,1.80078 -4,4v7h-3c-0.60156,0 -1,0.5 -1,1v6c0,0.5 0.39844,1 1,1h3v3c0,2.19922 1.80078,4 4,4h12c2.19922,0 4,-1.80078 4,-4v-14c0,-1.10156 -0.98828,-2.11328 -2.6875,-3.8125c-0.30078,-0.19922 -0.51172,-0.48828 -0.8125,-0.6875c-0.19922,-0.30078 -0.48828,-0.51172 -0.6875,-0.8125c-1.69922,-1.69922 -2.71094,-2.6875 -3.8125,-2.6875zM8,2h7.3125c0.69922,0.19922 0.6875,1.10156 0.6875,2v3c0,0.60156 0.39844,1 1,1h3c1,0 2,0 2,1v13c0,1.10156 -0.89844,2 -2,2h-12c-1.10156,0 -2,-0.89844 -2,-2v-3h11c0.60156,0 1,-0.5 1,-1v-6c0,-0.5 -0.39844,-1 -1,-1h-11v-7c0,-1.10156 0.89844,-2 2,-2zM3.8125,12.1875c0.80078,0 1.28906,0.19922 1.6875,0.5c0.39844,0.30078 0.59375,0.8125 0.59375,1.3125c0,0.5 -0.19922,1.01172 -0.5,1.3125c-0.39844,0.39844 -1.08203,0.59375 -1.78125,0.59375h-0.3125v1.78125c0,0.10156 -0.09375,0.125 -0.09375,0.125h-1.3125c-0.10156,0 -0.09375,-0.125 -0.09375,-0.125v-5.28125c0,-0.10156 -0.00781,-0.09375 0.09375,-0.09375c0.39844,-0.10156 1.01953,-0.125 1.71875,-0.125zM8.90625,12.1875c0.80078,0 1.28906,0.19922 1.6875,0.5c0.39844,0.30078 0.59375,0.8125 0.59375,1.3125c0,0.5 -0.19531,1.01172 -0.59375,1.3125c-0.39844,0.39844 -1.08203,0.59375 -1.78125,0.59375h-0.3125v1.78125c0,0.10156 -0.09375,0.125 -0.09375,0.125h-1.21875c-0.10156,0 -0.09375,-0.125 -0.09375,-0.125v-5.28125c0,-0.10156 -0.00781,-0.09375 0.09375,-0.09375c0.39844,-0.10156 1.01953,-0.125 1.71875,-0.125zM12,12.1875h4c0.10156,0 0.09375,0.125 0.09375,0.125v1c0,0.10156 -0.09375,0.09375 -0.09375,0.09375h-1.3125v4.1875c0,0.10156 -0.09375,0.09375 -0.09375,0.09375h-1.1875c-0.10156,0 -0.09375,-0.09375 -0.09375,-0.09375v-4.1875h-1.3125c-0.10156,0 -0.09375,-0.09375 -0.09375,-0.09375v-1c0,-0.10156 0.09375,-0.125 0.09375,-0.125zM3.40625,13.3125v1.375h0.28125c0.60156,0 0.90625,-0.28906 0.90625,-0.6875c0.10156,-0.60156 -0.48047,-0.6875 -0.78125,-0.6875zM8.5,13.3125v1.375h0.3125c0.60156,0 0.875,-0.28906 0.875,-0.6875c0,-0.60156 -0.48047,-0.6875 -0.78125,-0.6875z"></path></g></g></svg>
                   PPT
                 </span>
               </div>
@@ -463,7 +485,7 @@ function showModal() {
       <template v-else>
         <div class="helper_welcome">
           <div class="first">
-            <img src="../assets/welcome-txt-bg.png" alt="" class="welcome_txt_bg">
+            <!-- <img src="../assets/welcome-txt-bg.png" alt="" class="welcome_txt_bg"> -->
             <!-- {{ store.activeChatId.value }} -->
             <span style="color: rgb(76, 117, 246); font-size: 16px; font-weight: 600;">您已进入助手模式，当前选择的助手为：{{ helperObj[store.activeChatId.value].title }}</span>
             <br>{{ helperObj[store.activeChatId.value].desc }}<br>
@@ -521,7 +543,8 @@ function showModal() {
 .helper_welcome {
   width: 100%;
   .first {
-    background: hsla(0,0%,100%,.57);
+    // background: hsla(0,0%,100%,.57);
+    background: #e2eeff;;
     border-radius: 8px;
     box-sizing: border-box;
     letter-spacing: .5px;

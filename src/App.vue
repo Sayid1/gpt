@@ -34,7 +34,14 @@ function checkChat() {
 
 function addChat() {
   if (checkChat()) return
-  router.push('/')
+  const sno = localStorage.getItem('sno')
+  const ppt = localStorage.getItem('ppt')
+  let params = ''
+  if (sno&&ppt) params = `sno=${sno}&ppt=${ppt}`
+  if (sno&&!ppt) params = `sno=${sno}`
+  if (!sno&&ppt) params = `ppt=${ppt}`
+  router.push('/?'+params)
+  // router.push('/')
   store.url.value = 'http://8.129.170.108/api/xfws'
   store.activeTab.value = 'history-chat'
   store.showChat.value = true
@@ -47,7 +54,14 @@ function addChat() {
 
 function changeToHelperCenterRoot() {
   if (checkChat()) return
-  router.push('/')
+  const sno = localStorage.getItem('sno')
+  const ppt = localStorage.getItem('ppt')
+  let params = ''
+  if (sno&&ppt) params = `sno=${sno}&ppt=${ppt}`
+  if (sno&&!ppt) params = `sno=${sno}`
+  if (!sno&&ppt) params = `ppt=${ppt}`
+  router.push('/?'+params)
+  // router.push('/')
   store.activeTab.value = 'bot-list'
   store.showChat.value = false
   store.activeChatId.value = null
@@ -59,7 +73,13 @@ function changeToHistoryTab() {
 
 function toPage(route) {
   if (checkChat()) return
-  router.push(route)
+  const sno = localStorage.getItem('sno')
+  const ppt = localStorage.getItem('ppt')
+  let params = ''
+  if (sno&&ppt) params = `sno=${sno}&ppt=${ppt}`
+  if (sno&&!ppt) params = `sno=${sno}`
+  if (!sno&&ppt) params = `ppt=${ppt}`
+  router.push(route+'?'+params)
 }
 
 window.copyCode = function(id) {
@@ -95,7 +115,7 @@ window.copyCode = function(id) {
         <div class="box !mb-5" @click="addChat">
           <img src="./assets/add.svg" alt="">
         </div>
-        <div class="box">
+        <div class="box" @click="changeToHelperCenterRoot">
           <img src="./assets/bot.svg" alt="">
         </div>
       </div>
@@ -107,7 +127,7 @@ window.copyCode = function(id) {
       <div v-show="!sidebarCollapse" class="absolute bottom-4 inset-x-0 w-[266px] py-2" :class="{'h-[102px]': store.userInfo.id}">
         <div class="text-gray-600 pl-4 mb-4" v-if="store.userInfo.id">
           <p class="mb-1">设备号：{{ store.userInfo.mac }}</p>
-          <p>服务有效期：{{ dayjs(store.userInfo.chatExpiredTime ).format('YYYY-MM-DD HH:mm:ss') }}</p>
+          <p v-if="store.userInfo.chatExpiredTime">服务有效期：{{ dayjs(store.userInfo.chatExpiredTime).format('YYYY-MM-DD HH:mm:ss') }}</p>
         </div>
         <div class="grid grid-cols-1 divide-x text-sm text-center" :class="{'!grid-cols-3': store.userInfo.id}">
           <span @click.stop="toPage('/contact-us')" class="cursor-pointer text-white">联系我们</span>
@@ -279,10 +299,11 @@ window.copyCode = function(id) {
   .btn {
     cursor: pointer;
     align-items: center;
-    background: hsla(0,0%,100%,.16);
+    // background: hsla(0,0%,100%,.16);
+    background: hsla(0,0%,100%,1);
     border: 1px solid hsla(0,0%,100%,.46);
     border-radius: 5px;
-    color: #fff;
+    color: #4257e9;
     cursor: pointer;
     display: flex;
     font-size: 14px;
@@ -294,7 +315,7 @@ window.copyCode = function(id) {
     user-select: none;
     width: 106px;
     &:hover {
-      background: hsla(0,0%,100%,.3);
+      background: hsla(0,0%,100%,1);
       border: 1px solid hsla(0,0%,100%,.46);
     }
     span {
@@ -304,16 +325,19 @@ window.copyCode = function(id) {
   }
 }
 .root {
-  background: linear-gradient(#f2f5ff,#f2f5ff 49%,#e4ebf9 100%);
+  background: #ecf6ff;
+  // background: linear-gradient(#f2f5ff,#f2f5ff 49%,#e4ebf9 100%);
   display: flex;
   height: 100vh;
-  min-width: 1200px;
+  min-width: 1040px;
+  // min-width: 1200px;
   overflow: hidden;
   position: relative;
   width: 100vw;
 }
 .sidebar {
-  background: linear-gradient(135deg,#7958ff,#00caff);
+  background: #5798ff;
+  // background: linear-gradient(135deg,#7958ff,#00caff);
   border-radius: 0 20px 20px 0;
   box-shadow: 4px 0 16px 0 rgba(113,155,255,.58);
   height: 100%;

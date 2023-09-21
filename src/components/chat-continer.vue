@@ -39,7 +39,7 @@ const containerRef = ref(null)
   width: 100%;
 }
 .chat_window {
-  background-color: #e4ebf9;
+  background-color: #ecf6ff;
   box-sizing: border-box;
   height: 100%;
   position: relative;

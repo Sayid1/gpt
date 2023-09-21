@@ -1,5 +1,5 @@
 import {createApp} from 'vue';
-import { createRouter, createWebHashHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 import { useFetch } from '@vueuse/core'
 import {marked} from 'marked';
 import Prism from 'prismjs';
@@ -16,13 +16,20 @@ import ContactUs from './components/contact-us.vue'
 
 const store = useGlobalState()
 const urlParams = new URLSearchParams(window.location.search)
-const sno = urlParams.get('sno')
+let sno = urlParams.get('sno')
+const ppt = urlParams.get('ppt')
+if (ppt) {
+  localStorage.setItem('ppt', ppt)
+}
+
 if (sno){
   localStorage.setItem('sno', sno)
   // CHATGPT00009999
   const { data, error, isFetching } = await useFetch(`http://8.129.170.108/api/register?account=${sno}&code=${sno}&password=${sno}&type=VISITOR`).post().json()
   store.userInfo = data.value.data
   console.log(store.userInfo)
+} else {
+  localStorage.removeItem('sno')
 }
 // const marked = new Marked({
 //   mangle: false,
@@ -55,7 +62,7 @@ const routes = [
 
 const router = createRouter({
   // 4. 内部提供了 history 模式的实现。为了简单起见，我们在这里使用 hash 模式。
-  history: createWebHashHistory(),
+  history: createWebHistory(),
   routes, // `routes: routes` 的缩写
 })
 const app = createApp (App)

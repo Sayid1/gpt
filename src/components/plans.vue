@@ -1,5 +1,5 @@
 <script setup async>
-import { ref, reactive, computed, watch, onUnmounted } from "vue";
+import { ref, reactive, computed, watch, onUnmounted,onBeforeUnmount } from "vue";
 import { useFetch } from '@vueuse/core'
 import { useRouter } from 'vue-router'
 import { useGlobalState } from '../store'
@@ -73,6 +73,11 @@ function setQrcodeUrl(codeUrl) {
 }
 
 onUnmounted(() => {
+  // console.log('onUnmounted')
+  if (payStatusTimer.value) clearInterval(payStatusTimer.value)
+})
+onBeforeUnmount(() => {
+  // console.log('onBeforeUnmount')
   if (payStatusTimer.value) clearInterval(payStatusTimer.value)
 })
 
@@ -82,10 +87,15 @@ async function loopStatus() {
     message('购买成功！')
     const urlParams = new URLSearchParams(window.location.search)
     const sno = urlParams.get('sno')
+    const ppt = urlParams.get('ppt')
     const { data: userData } = await useFetch(`http://8.129.170.108/api/register?account=${sno}&code=${sno}&password=${sno}&type=VISITOR`).post().json()
     store.userInfo = userData.value.data
     if (payStatusTimer.value) clearInterval(payStatusTimer.value)
-    router.push('/orders')
+    let params = ''
+    if (sno&&ppt) params = `sno=${sno}&ppt=${ppt}`
+    if (sno&&!ppt) params = `sno=${sno}`
+    if (!sno&&ppt) params = `ppt=${ppt}`
+    router.push('/orders?'+params)
     return true
   } else {
     return false
