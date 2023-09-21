@@ -111,7 +111,7 @@ onUnmounted(() => document.body.removeEventListener('click', cancel))
       v-for="(id, index) in keys" :key="id"
       class="chat-item"
       :class="{
-        'border-y border-white	border-solid': editId === id,
+        // 'border-y border-white	border-solid': editId === id,
         'chat-item__active': store.activeChatId.value === id
       }"
     >

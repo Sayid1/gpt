@@ -1,18 +1,13 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useGlobalState } from './store'
 import { useClipboard } from '@vueuse/core'
 import { useRouter, useRoute } from 'vue-router'
+import historyChat from './components/history-chat.vue'
 import welcome from './components/welcome-window.vue'
 import helperList from './components/helper-list.vue'
-import historyChat from './components/history-chat.vue'
-import chatItem from './components/chat.vue'
-import chatInput from './components/chat-input.vue'
-import helperCenter from './components/helper-center.vue'
 import contactUs from './components/contact-us.vue'
-// import orders from './components/orders.vue'
-import plans from './components/plans.vue'
-import message from './components/message/message.js'
+import Modal from './components/modal.vue'
 import dayjs from 'dayjs'
 
 import { genChatId, useChatCache } from './utils'
@@ -20,6 +15,9 @@ import { genChatId, useChatCache } from './utils'
 const { copy } = useClipboard()
 
 const sidebarCollapse = ref(false)
+const showMask = ref(true)
+const isShowModal = ref(false)
+
 const store = useGlobalState()
 const { set, remove } = useChatCache()
 const router = useRouter()
@@ -66,6 +64,22 @@ window.copyCode = function(id) {
   copy(document.getElementById('code_' + id).textContent)
   message('复制成功')
 }
+
+onMounted(() => {
+  const urlParams = new URLSearchParams(window.location.search)
+  const sno = urlParams.get('sno')
+  if (sno) showMask.value = false
+})
+
+function closeModal() {
+  isShowModal.value = false
+}
+function showModal() {
+  isShowModal.value = true
+}
+function renewal() {
+  router.push('/plans')
+}
 </script>
 
 <template>
@@ -95,7 +109,7 @@ window.copyCode = function(id) {
         <div class="box !mb-5" @click="addChat">
           <img src="./assets/add.svg" alt="">
         </div>
-        <div class="box">
+        <div class="box" @click="changeToHelperCenterRoot">
           <img src="./assets/bot.svg" alt="">
         </div>
       </div>
@@ -107,7 +121,7 @@ window.copyCode = function(id) {
       <div v-show="!sidebarCollapse" class="absolute bottom-4 inset-x-0 w-[266px] py-2" :class="{'h-[102px]': store.userInfo.id}">
         <div class="text-gray-600 pl-4 mb-4" v-if="store.userInfo.id">
           <p class="mb-1">设备号：{{ store.userInfo.mac }}</p>
-          <p>服务有效期：{{ dayjs(store.userInfo.chatExpiredTime ).format('YYYY-MM-DD HH:mm:ss') }}</p>
+          <p v-if="store.userInfo.chatExpiredTime">服务有效期：{{ dayjs(store.userInfo.chatExpiredTime).format('YYYY-MM-DD HH:mm:ss') }}</p>
         </div>
         <div class="grid grid-cols-1 divide-x text-sm text-center" :class="{'!grid-cols-3': store.userInfo.id}">
           <span @click.stop="toPage('/contact-us')" class="cursor-pointer text-white">联系我们</span>
@@ -123,6 +137,29 @@ window.copyCode = function(id) {
     <main :class="{'main__collapse': sidebarCollapse}">
       <router-view></router-view>
     </main>
+
+    <div class="fixed inset-0 z-[9999]" v-if="showMask" @click="showModal"></div>
+    <Modal size="xs" v-if="isShowModal" @close="closeModal" :overlayer="true">
+      <template #body>
+        <div class="flex gap-x-2 items-center px-3 py-2 pt-9 w-96 text-base">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" class="stroke-orange-400	w-7 h-7">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+          </svg>
+
+          <span class="font-semibold">服务已到期，是否续费服务？</span>
+        </div>
+      </template>
+      <template #footer>
+        <div class="flex justify-end gap-x-4">
+          <button @click="closeModal" type="button" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 ">
+            取消
+          </button>
+          <button @click="renewal" type="button" class="text-white bg-blue-500 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center ">
+            续费
+          </button>
+        </div>
+      </template>
+    </Modal>
   </div>
 </template>
 
@@ -279,10 +316,10 @@ window.copyCode = function(id) {
   .btn {
     cursor: pointer;
     align-items: center;
-    background: hsla(0,0%,100%,.16);
+    background: hsla(0,0%,100%,1);
     border: 1px solid hsla(0,0%,100%,.46);
     border-radius: 5px;
-    color: #fff;
+    color: #4257e9;
     cursor: pointer;
     display: flex;
     font-size: 14px;
@@ -294,7 +331,7 @@ window.copyCode = function(id) {
     user-select: none;
     width: 106px;
     &:hover {
-      background: hsla(0,0%,100%,.3);
+      background: hsla(0,0%,100%,1);
       border: 1px solid hsla(0,0%,100%,.46);
     }
     span {
@@ -304,16 +341,16 @@ window.copyCode = function(id) {
   }
 }
 .root {
-  background: linear-gradient(#f2f5ff,#f2f5ff 49%,#e4ebf9 100%);
+  background: #ecf6ff;
   display: flex;
   height: 100vh;
-  min-width: 1200px;
+  min-width: 1040px;
   overflow: hidden;
   position: relative;
   width: 100vw;
 }
 .sidebar {
-  background: linear-gradient(135deg,#7958ff,#00caff);
+  background: #5798ff;
   border-radius: 0 20px 20px 0;
   box-shadow: 4px 0 16px 0 rgba(113,155,255,.58);
   height: 100%;

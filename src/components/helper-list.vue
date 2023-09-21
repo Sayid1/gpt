@@ -65,7 +65,7 @@ function showModal() {
 </script>
 
 <template>
-  <div class="list_container" v-if="helper.length">
+  <div class="list_container overflow-y-scroll hidden-scroll-bar" v-if="helper.length">
     <Modal size="xs" v-if="isShowModal" @close="closeModal" :overlayer="true">
       <template #body>
         <div class="flex gap-x-2 items-center px-3 py-2 pt-9 w-96 text-base">
@@ -153,7 +153,8 @@ function showModal() {
     margin-bottom: 0;
   }
   &:hover, &.list_item__active {
-    background: linear-gradient(270deg,#417df4,#5270f8);
+    // background: linear-gradient(270deg,#417df4,#5270f8);
+    background: rgba($color: #ffffff, $alpha: .2);
     padding-right: 38px;
     .control_btn {
       align-items: center;

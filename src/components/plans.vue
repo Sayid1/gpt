@@ -1,5 +1,5 @@
 <script setup async>
-import { ref, reactive, computed, watch, onUnmounted } from "vue";
+import { ref, reactive, computed, watch, onUnmounted, onBeforeUnmount } from "vue";
 import { useFetch } from '@vueuse/core'
 import { useRouter } from 'vue-router'
 import { useGlobalState } from '../store'
@@ -71,7 +71,9 @@ function setQrcodeUrl(codeUrl) {
     console.error(err)
   })
 }
-
+onBeforeUnmount(() => {
+  if (payStatusTimer.value) clearInterval(payStatusTimer.value)
+})
 onUnmounted(() => {
   if (payStatusTimer.value) clearInterval(payStatusTimer.value)
 })

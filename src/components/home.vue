@@ -43,9 +43,11 @@ function enter() {
   margin-top: 12px;
   text-align: center;
   width: 100%;
+  position: absolute;
+  bottom: 0;
 }
 .chat_window {
-  background-color: #e4ebf9;
+  background-color: #ecf6ff;
   box-sizing: border-box;
   height: 100%;
   position: relative;
