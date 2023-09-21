@@ -43,7 +43,7 @@ function clickHelperItem(id) {
 <template>
   <div class="bot_welcome_panel">
     <div class="title">
-      星火助手中心<span>场景任务一键搞定，打造高效的生产力工具！</span>
+      助手中心<span>场景任务一键搞定，打造高效的生产力工具！</span>
     </div>
     <div class="card_wrapper gap-x-10">
       <div class="card_item" :class="{added: addedHelper.includes(helper.id)}" @click="clickHelperItem(helper.id)" v-for="helper in helperList" :key="helper.id">

@@ -6,7 +6,7 @@ import { ref } from 'vue'
   <div class="  h-full p-4">
     <div class="bg-white h-full flex flex-col">
 
-      <div class=" bg-white shadow-md rounded-sm">
+      <!-- <div class=" bg-white shadow-md rounded-sm">
         <h1 class="border-gray-100 border-b p-4 text-lg font-semibold">欢迎关注公众号办理以下业务</h1>
         <ul class="list-disc pl-8 py-4 border border-transparent gap-y-1 flex flex-col">
           <li>套餐购买使用疑问</li>
@@ -14,7 +14,7 @@ import { ref } from 'vue'
           <li>ChatGPT技术实践交流</li>
           <li>文案工具需求建议</li>
         </ul>
-      </div>
+      </div> -->
       <div class="mt-20 flex gap-x-28 justify-center items-center flex-1 -translate-y-[10%]">
         <img src="../assets/qrcode.png" class="w-52 h-52">
         <div class="flex flex-col items-center">

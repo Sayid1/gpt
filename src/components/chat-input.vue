@@ -212,7 +212,7 @@ function backHome() {
   }
 }
 .ask_prompt {
-  background: url(../assets/prompt_bg.png) 50%/104% 104% no-repeat;
+  // background: url(../assets/prompt_bg.png) 50%/104% 104% no-repeat;
   background-color: #fff;
   border: 1px solid transparent;
   border-bottom: 0!important;
@@ -273,7 +273,8 @@ function backHome() {
   }
 }
 .send {
-  background: linear-gradient(#597eff,#6278ff);
+  background: #2961f7;
+  // background: linear-gradient(#597eff,#6278ff);
   border-radius: 8px;
   bottom: 10px;
   color: #fff;
