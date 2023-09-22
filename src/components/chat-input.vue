@@ -1,7 +1,7 @@
 <script setup>
 import { v4 } from 'uuid'
 import { useRouter } from 'vue-router'
-import { ref, watch, nextTick } from 'vue'
+import { ref, watch, nextTick, onMounted } from 'vue'
 import Modal from './modal.vue'
 import { useGlobalState } from '../store'
 import { useSendMsg, useChatCache, genChatId, manualStop, helperObj } from '../utils'
@@ -45,8 +45,21 @@ function handleEnterKey(event) {
   }
 }
 
+onMounted(() => {
+  window.handlInputValue = function(text,state) {
+    if (store.showMask.value) {
+      return false
+    }
+    store.content.value = text
+    if (state == 2) {
+      sendMsg()
+    }
+  }
+})
+
 function sendMsg() {
-  if (store.userInfo.id && store.userInfo.chatExpiredTime < +new Date()) {
+  if (store.userInfo.id && store.userInfo.chatExpiredTime < store.userInfo.now) {
+  // if (store.userInfo.id && store.userInfo.chatExpiredTime < +new Date()) {
     showModal()
     return
   }
@@ -274,7 +287,6 @@ function backHome() {
 }
 .send {
   background: #2961f7;
-  // background: linear-gradient(#597eff,#6278ff);
   border-radius: 8px;
   bottom: 10px;
   color: #fff;

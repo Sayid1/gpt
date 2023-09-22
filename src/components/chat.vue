@@ -72,7 +72,7 @@ onMounted(() => {
     if (markdownBody) {
       const tables = Array.from(markdownBody.getElementsByTagName('table'))
       if(tables.length) {
-        // console.log(tables)
+        console.log(tables)
         // document.querySelector(`#markdown_body_${id} .excel`)
         showExcel.value = true
       }
@@ -82,7 +82,19 @@ onMounted(() => {
 
 function copyToClipboard(content) {
   if (checkChat()) return
-  copy(content)
+    // copy(content)
+  if (navigator.clipboard) {
+    copy(content)
+  } else {
+    const inputDom = document.createElement('textarea');
+    inputDom.setAttribute('readonly', 'readonly');
+    inputDom.value = content;
+    inputDom.style.opacity = 0
+    document.body.appendChild(inputDom);
+    inputDom.select();
+    document.execCommand('copy');
+    document.body.removeChild(inputDom);
+  }
   message('复制成功')
 }
 
@@ -178,16 +190,20 @@ function pptExport(i){
           }
         }
       }
-  }
-  const urlParams = new URLSearchParams(window.location.search)
-  const ppt = urlParams.get('ppt')
-  const sno = urlParams.get('sno')
+  }			
   // const url =	"https://mindshow.fun/#/home?channel=miclink&markdown="+encodeURIComponent(content);
   // window.open(url,"_blank");		
-  if(ppt=='iframe'){ 
+  const urlParams = new URLSearchParams(window.location.search)
+  const ppt = urlParams.get('ppt')
+  let sno = urlParams.get('sno')
+  // const url =	"https://mindshow.fun/#/home?channel=miclink&markdown="+encodeURIComponent(content);
+  // window.open(url,"_blank");		
+  if(ppt === 'iframe'){ 
     if(!sno){ 
       sno = 'MicLink'; 
-    } 
+    } else {
+      sno = 'CHAT_'+ sno
+    }
     var tdata = encodeURIComponent(content); 
     var tkey = new Date().getTime(); 
     localStorage.setItem(tkey,tdata)
@@ -196,7 +212,7 @@ function pptExport(i){
   }else{ 
     const url = "https://mindshow.fun/#/home?channel=miclink&markdown="+encodeURIComponent(content); 
     window.open(url,"_blank");  
-  } 
+  }
 }
 
 function table2json(table) {
@@ -217,6 +233,7 @@ function table2json(table) {
     theadRow.querySelectorAll('th').forEach((header, j) => {
       const headerText = header.textContent;
       const text = cells[j].textContent
+      // const numberText = Number(text)
       const num = text.replace(/[^0-9]/g, '')
       const numberText = Number(num)
       if (i === 0) legendData.push(headerText)
@@ -226,14 +243,7 @@ function table2json(table) {
         else seriData[j - 1][i] = numberText;
       }
     });
-
-    // 将当前行的数据对象添加到数组中
-    // data.push(rowData);
   });
-  // return data
-  // console.log(labelData)
-  // console.log(seriData)
-  // console.log(legendData)
   return {
     legendData,
     seriData,
@@ -321,7 +331,6 @@ function getPiechart(data) {
     },
     options: {
       animation: false,
-      // backgroundColor: "#fff"
     },
   });
   window.pieChart = pieChart
@@ -345,8 +354,6 @@ async function exportChart() {
     const rows = tables[i].querySelectorAll('tr');
     
     charts.forEach((chart, i) => {
-      // console.log(chart)
-      // console.log(chart.height)
       const chartImage = chart.toBase64Image(({
         pixelRatio: 2, // 导出图片的分辨率比例，默认为1，即图片的分辨率为屏幕分辨率的一倍
         backgroundColor: '#fff' // 导出图片的背景色
@@ -543,8 +550,7 @@ function showModal() {
 .helper_welcome {
   width: 100%;
   .first {
-    // background: hsla(0,0%,100%,.57);
-    background: #e2eeff;;
+    background: #e2eeff;
     border-radius: 8px;
     box-sizing: border-box;
     letter-spacing: .5px;

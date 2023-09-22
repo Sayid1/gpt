@@ -42,13 +42,7 @@ function removeHelper() {
 
 function clickHelper(id) {
   if (checkChat()) return
-  const sno = localStorage.getItem('sno')
-  const ppt = localStorage.getItem('ppt')
-  let params = ''
-  if (sno&&ppt) params = `sno=${sno}&ppt=${ppt}`
-  if (sno&&!ppt) params = `sno=${sno}`
-  if (!sno&&ppt) params = `ppt=${ppt}`
-  router.push('/?'+params)
+  router.push('/')
   store.url.value = 'http://8.129.170.108/api/xfws?assistantId=' + id
   store.showChat.value = true
   store.activeChatId.value = id

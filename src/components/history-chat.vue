@@ -59,14 +59,7 @@ function updateChat(id, index) {
 
 function clickHistoryChatItem(id) {
   if (checkChat()) return
-  const sno = localStorage.getItem('sno')
-  const ppt = localStorage.getItem('ppt')
-  let params = ''
-  if (sno&&ppt) params = `sno=${sno}&ppt=${ppt}`
-  if (sno&&!ppt) params = `sno=${sno}`
-  if (!sno&&ppt) params = `ppt=${ppt}`
-  router.push('/?'+params)
-  // router.push('/')
+  router.push('/')
   store.activeChatId.value = id
   // nextTick(() => {
     store.showChat.value = true
@@ -113,12 +106,12 @@ onUnmounted(() => document.body.removeEventListener('click', cancel))
         </div>
       </template>
     </Modal>
-        <!-- 'border-y border-white	border-solid': editId === id, -->
     <div
       @click.stop="clickHistoryChatItem(id)"
       v-for="(id, index) in keys" :key="id"
       class="chat-item"
       :class="{
+        // 'border-y border-white	border-solid': editId === id,
         'chat-item__active': store.activeChatId.value === id
       }"
     >
@@ -180,14 +173,13 @@ onUnmounted(() => document.body.removeEventListener('click', cancel))
   cursor: pointer;
   display: flex;
   font-size: 14px;
-  height: 40px;
+  height: 46px;
   padding-left: 20px;
   padding-right: 30px;
   position: relative;
   width: 100%;
   &:hover, &.chat-item__active {
-    background: rgba($color: #ffffff, $alpha: .2);
-    // background: linear-gradient(270deg,#417df4,#5270f8);
+    background: linear-gradient(270deg,#417df4,#5270f8);
     padding-right: 70px;
     .control {
       align-items: center;

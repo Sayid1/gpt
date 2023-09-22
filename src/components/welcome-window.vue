@@ -21,7 +21,8 @@ const isShowModal = ref(false)
 const router = useRouter()
 
 function clickQuestion(q) {
-  if (store.userInfo.id && store.userInfo.chatExpiredTime < +new Date()) {
+  if (store.userInfo.id && store.userInfo.chatExpiredTime < store.userInfo.now) {
+  // if (store.userInfo.id && store.userInfo.chatExpiredTime < +new Date()) {
     showModal()
     return
   }
@@ -65,8 +66,8 @@ function renewal() {
       <img src="../assets/bot.png" class="user_image" alt="">
       <div class="content_welcome_gpt">
         <!-- <img src="../assets/welcome-right.png" alt=""> -->
-        <p class="hello" style="font-size: 16px;">您好，我是讯飞星火认知大模型</p>
-        <p class="">能够学习和理解人类的语言，进行多轮对话</p>
+        <p class="hello text-base">您好，我是讯飞星火认知大模型</p>
+        <p>能够学习和理解人类的语言，进行多轮对话</p>
         <p class="">回答问题，高效便捷地帮助人们获取信息、知识和灵感</p>
       </div>
     </div>
@@ -117,6 +118,7 @@ function renewal() {
     border-radius: 8px;
     box-sizing: border-box;
     margin: 0 auto 56px;
+    // padding: 25px 24px;
     padding: 20px 28px;
     width: 100%;
   }
@@ -174,7 +176,7 @@ function renewal() {
     box-sizing: border-box;
     color: #41416d;
     margin-bottom: 30px;
-    padding: 25px 38px;
+    padding: 20px 28px;
     position: relative;
     width: 100%;
     img {
@@ -188,7 +190,7 @@ function renewal() {
       line-height: 28px;
     }
     .hello {
-      font-size: 22px;
+      // font-size: 22px;
       font-weight: 600;
       color: rgb(66, 87, 233);
     }
