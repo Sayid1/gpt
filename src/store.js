@@ -15,6 +15,8 @@ export const useGlobalState = createGlobalState(
     const isReanswer = ref(false)
     const manualStop = ref(false)
     const wsClosed = ref(false)
+    //支付免费换 ，true 支付  false 免费
+    const showMask = ref(true)
 
     const showChat = ref(true)
     // 当前的对话消息记录
@@ -25,6 +27,6 @@ export const useGlobalState = createGlobalState(
     // 侧边栏激活的tab
     const activeTab = ref('history-chat')
     const url = ref('http://8.129.170.108/api/xfws')
-    return { userInfo, content, msgRecord, activeChatId, isGenerating, close, showChat, activeTab, url, isReanswer, manualStop, wsClosed }
+    return { userInfo, content, msgRecord, activeChatId, isGenerating, close, showChat, activeTab, url, isReanswer, manualStop, wsClosed, showMask }
   }
 )

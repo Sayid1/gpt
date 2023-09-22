@@ -1,7 +1,7 @@
-<script setup>
-import { ref, onMounted } from 'vue'
+<script setup async>
+import { ref, onMounted,onUnmounted, onBeforeUnmount } from 'vue'
 import { useGlobalState } from './store'
-import { useClipboard } from '@vueuse/core'
+import { useClipboard, useFetch } from '@vueuse/core'
 import { useRouter, useRoute } from 'vue-router'
 import historyChat from './components/history-chat.vue'
 import welcome from './components/welcome-window.vue'
@@ -17,6 +17,7 @@ const { copy } = useClipboard()
 const sidebarCollapse = ref(false)
 const showMask = ref(true)
 const isShowModal = ref(false)
+const nowTime = ref('')
 
 const store = useGlobalState()
 const { set, remove } = useChatCache()
@@ -66,10 +67,30 @@ window.copyCode = function(id) {
 }
 
 onMounted(() => {
+  showMask.value = store.showMask.value
   const urlParams = new URLSearchParams(window.location.search)
-  const sno = urlParams.get('sno')
-  if (sno) showMask.value = false
+  let sno = urlParams.get('sno')
+  if (sno) {
+    store.showMask.value = false
+    showMask.value = false
+    console.log(showMask.value)
+    loopUser(sno)
+  }
 })
+
+onBeforeUnmount(() => {
+  if (nowTime.value) clearInterval(nowTime.value)
+})
+onUnmounted(() => {
+  if (nowTime.value) clearInterval(nowTime.value)
+})
+function loopUser (sno) {
+  sno = 'CHAT_'+ sno
+  nowTime.value = setInterval(async () => {
+    const { data } = await useFetch(`http://8.129.170.108/api/register?account=${sno}&code=${sno}&password=${sno}&type=VISITOR`).post().json()
+    store.userInfo = data.value.data
+  },1000 * 60 * 30)
+}
 
 function closeModal() {
   isShowModal.value = false
@@ -121,7 +142,7 @@ function renewal() {
       <div v-show="!sidebarCollapse" class="absolute bottom-4 inset-x-0 w-[266px] py-2" :class="{'h-[102px]': store.userInfo.id}">
         <div class="text-gray-600 pl-4 mb-4" v-if="store.userInfo.id">
           <p class="mb-1">设备号：{{ store.userInfo.mac }}</p>
-          <p v-if="store.userInfo.chatExpiredTime">服务有效期：{{ dayjs(store.userInfo.chatExpiredTime).format('YYYY-MM-DD HH:mm:ss') }}</p>
+          <p>服务有效期：{{ store.userInfo.chatExpiredTime ? dayjs(store.userInfo.chatExpiredTime).format('YYYY-MM-DD HH:mm:ss') : '已过期'}}</p>
         </div>
         <div class="grid grid-cols-1 divide-x text-sm text-center" :class="{'!grid-cols-3': store.userInfo.id}">
           <span @click.stop="toPage('/contact-us')" class="cursor-pointer text-white">联系我们</span>
@@ -139,24 +160,14 @@ function renewal() {
     </main>
 
     <div class="fixed inset-0 z-[9999]" v-if="showMask" @click="showModal"></div>
-    <Modal size="xs" v-if="isShowModal" @close="closeModal" :overlayer="true">
+    <Modal size="xs" v-if="showMask" @close="closeModal" :overlayer="true">
       <template #body>
-        <div class="flex gap-x-2 items-center px-3 py-2 pt-9 w-96 text-base">
+        <div class="flex gap-x-2 items-center px-3 py-2 w-52 text-base">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" class="stroke-orange-400	w-7 h-7">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
           </svg>
 
-          <span class="font-semibold">服务已到期，是否续费服务？</span>
-        </div>
-      </template>
-      <template #footer>
-        <div class="flex justify-end gap-x-4">
-          <button @click="closeModal" type="button" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 ">
-            取消
-          </button>
-          <button @click="renewal" type="button" class="text-white bg-blue-500 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center ">
-            续费
-          </button>
+          <span class="font-semibold">缺少当前设备号</span>
         </div>
       </template>
     </Modal>

@@ -82,7 +82,18 @@ onMounted(() => {
 
 function copyToClipboard(content) {
   if (checkChat()) return
-  copy(content)
+  if (navigator.clipboard) {
+    copy(content)
+  } else {
+    const inputDom = document.createElement('textarea');
+    inputDom.setAttribute('readonly', 'readonly');
+    inputDom.value = content;
+    inputDom.style.opacity = 0
+    document.body.appendChild(inputDom);
+    inputDom.select();
+    document.execCommand('copy');
+    document.body.removeChild(inputDom);
+  }
   message('复制成功')
 }
 
@@ -183,7 +194,7 @@ function pptExport(i){
   // window.open(url,"_blank");		
   const urlParams = new URLSearchParams(window.location.search)
   const ppt = urlParams.get('ppt')
-  const sno = urlParams.get('sno')
+  let sno = urlParams.get('sno')
   // const url =	"https://mindshow.fun/#/home?channel=miclink&markdown="+encodeURIComponent(content);
   // window.open(url,"_blank");		
   if(ppt === 'iframe'){ 

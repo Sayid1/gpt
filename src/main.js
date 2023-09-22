@@ -16,12 +16,13 @@ import ContactUs from './components/contact-us.vue'
 
 const store = useGlobalState()
 const urlParams = new URLSearchParams(window.location.search)
-const sno = urlParams.get('sno')
+let sno = urlParams.get('sno')
 const ppt = urlParams.get('ppt')
 if (ppt) {
   localStorage.setItem('ppt', ppt)
 }
 if (sno){
+  sno = 'CHAT_'+ sno
   localStorage.setItem('sno', sno)
   // CHATGPT00009999
   const { data, error, isFetching } = await useFetch(`http://8.129.170.108/api/register?account=${sno}&code=${sno}&password=${sno}&type=VISITOR`).post().json()
