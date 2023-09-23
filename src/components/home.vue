@@ -18,7 +18,7 @@ function enter() {
 
 <template>
   <div class="chat_window">
-    <div class="out_wrap">
+    <div class="out_wrap" :style="{height: store.showChat.value ? 'calc(100% - 200px)' : '100%'}">
       <template v-if="store.showChat.value">
 
         <chat-continer ref="chatRef" v-if="store.msgRecord.value?.length" />
@@ -57,7 +57,6 @@ function enter() {
   .out_wrap {
     display: flex;
     flex-direction: column;
-    height: calc(100% - 200px);
     margin: 0 auto;
     overflow-y: auto;
     position: relative;

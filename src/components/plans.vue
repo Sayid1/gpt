@@ -1,5 +1,5 @@
 <script setup async>
-import { ref, reactive, computed, watch, onUnmounted, onBeforeUnmount } from "vue";
+import { ref, reactive, computed, watch, onUnmounted, onBeforeUnmount, toRef } from "vue";
 import { useFetch } from '@vueuse/core'
 import { useRouter } from 'vue-router'
 import { useGlobalState } from '../store'
@@ -46,7 +46,7 @@ watch([payType, planRef], async () => {
   if (payStatusTimer.value) clearInterval(payStatusTimer.value)
   qrcodeFetchig.value = true
   // 生成订单获取二维码url
-  const { data, error, isFetching, } = await useFetch(`http://8.129.170.108/api/pay?goodsId=${planRef.value.goodsId}&goodsSpecsId=${planRef.value.id}&goodsType=CHATGPT&payType=${payType.value}&token=${store.userInfo.token}&source=NATIVE`).json()
+  const { data, error, isFetching, } = await useFetch(`http://8.129.170.108/api/pay?goodsId=${planRef.value.goodsId}&goodsSpecsId=${planRef.value.id}&goodsType=CHATGPT&payType=${payType.value}&token=${store.userInfo.value.token}&source=NATIVE`).json()
   orderInfo.value = data.value.data
   setQrcodeUrl(data.value.data.codeUrl)
 })
@@ -85,7 +85,7 @@ async function loopStatus() {
     const urlParams = new URLSearchParams(window.location.search)
     const sno = urlParams.get('sno')
     const { data: userData } = await useFetch(`http://8.129.170.108/api/register?account=${sno}&code=${sno}&password=${sno}&type=VISITOR`).post().json()
-    store.userInfo = userData.value.data
+    store.userInfo.value = userData.value.data
     if (payStatusTimer.value) clearInterval(payStatusTimer.value)
     router.push('/orders')
     return true

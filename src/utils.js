@@ -2,7 +2,6 @@ import { useStorage, useFetch, useWebSocket } from '@vueuse/core'
 import { ref, watch, computed, watchEffect, nextTick } from 'vue'
 import { useGlobalState } from './store'
 import dayjs from 'dayjs'
-import prism from 'prismjs';
 
 export function genChatId() {
   const id = +new Date() + ''
@@ -59,7 +58,7 @@ export function useChatCache() {
   }
   return { chat, set, update, remove }
 }
-
+const isInitHelper = useStorage('helper-init', false, localStorage)
 export function useHelperCache() {
   const helper = useStorage('helper-list', [], localStorage)
   function add(id) {
@@ -71,7 +70,14 @@ export function useHelperCache() {
     const index = helper.value.findIndex(id1 => id1 === id)
     helper.value.splice(index, 1)
   }
-  return { helper, add, remove }
+  function init() {
+    if (isInitHelper.value) return
+    helperList.forEach(helper => {
+      add(helper.id)
+    })
+    isInitHelper.value = true
+  }
+  return { helper, add, remove, init }
 }
 
 const { set, chat } = useChatCache()
@@ -128,15 +134,30 @@ export function manualStop() {
   }
   set(store.activeChatId.value, cache)
 }
-
+function isPPT(text) {
+  var regex = /(做|生成|写|制作|提供|输出).*?PPT|ppt/ig;
+  return regex.test(text);
+}
+function isTable(text) {
+  var regex = /(做|写|建|生成|制|创).*?表/ig;
+  return regex.test(text);
+}
 function ws(id, path, userInput, reanswer) {
   const chatRecords = chat.value[id].chatRecords
   let text = []
+  let paramUserInput = userInput
+  if (isPPT(userInput)) {
+    if (paramUserInput.toLowerCase().indexOf('markdown') === -1) {
+      paramUserInput += ",请使用MarkDown格式输出内容"
+    }
+  } else if (isTable(userInput)) {
+    paramUserInput += ",请使用Markdown的表格格式输出内容"
+  }
   if (chatRecords) {
     text = chatRecords.filter(record => record.role !== 'welcome_bot').slice(0, 6)
-    if (!reanswer) text.push({ "role": "user", "content":  userInput })
+    if (!reanswer) text.push({ "role": "user", "content":  paramUserInput })
   } else {
-    text = [{ "role": "user", "content":  userInput }]
+    text = [{ "role": "user", "content":  paramUserInput }]
   }
   var textresult = ''
   var i = 0
@@ -146,7 +167,7 @@ function ws(id, path, userInput, reanswer) {
       var dd = eval("("+e.data+")");
       textresult += dd.payload.choices.text[0].content;
       for(var j=i; j<textresult.length; j++) {
-        var delay = j * 12;
+        var delay = j * 50;
         timer.push(setTimeout(function () {
           i++
           var text = textresult.slice(0, i)

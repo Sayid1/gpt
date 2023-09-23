@@ -5,7 +5,7 @@ export const useGlobalState = createGlobalState(
   () => {
     // 当前输入框输入的消息
     const content = ref('')
-    const userInfo = reactive({})
+    const userInfo = ref(null)
 
     // 侧边栏激活的对话id
     const activeChatId = ref('')
