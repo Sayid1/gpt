@@ -31,7 +31,7 @@ customRenderer.text = function (text) {
 };
 marked.setOptions({
   renderer: customRenderer,
-});;
+});
 
 </script>
 
