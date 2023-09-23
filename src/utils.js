@@ -71,9 +71,11 @@ export function useHelperCache() {
     helper.value.splice(index, 1)
   }
   function init() {
+    const { set } = useChatCache()
     if (isInitHelper.value) return
     helperList.forEach(helper => {
       add(helper.id)
+      set(helper.id, helperObj[helper.id].title)
     })
     isInitHelper.value = true
   }
@@ -107,13 +109,13 @@ watch(isCompleted, newVal => {
     })
   }
 })
-watch(genText, newVal => {
-  store.msgRecord.value.splice(store.msgRecord.value.length - 1, 1, {
-    role: 'assistant',
-    content: newVal,
-    finished: newVal === completedText.value,
-  })
-})
+// watch(genText, newVal => {
+//   store.msgRecord.value.splice(store.msgRecord.value.length - 1, 1, {
+//     role: 'assistant',
+//     content: newVal,
+//     finished: newVal === completedText.value,
+//   })
+// })
 
 export function manualStop() {
   completedText.value = genText.value
