@@ -29,6 +29,9 @@ marked.setOptions({
   renderer: customRenderer,
 });
 
+export function parseMarkdown(content) {
+  return marked.parse(content)
+}
 export function genChatId() {
   const id = +new Date() + ''
   store.activeChatId.value = id

@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useHelperCache, useChatCache, helperObj } from '../utils'
+import { useHelperCache, useChatCache, helperObj, parseMarkdown } from '../utils'
 import { useGlobalState } from '../store'
 import Modal from './modal.vue'
 import message from './message/message.js'
@@ -49,7 +49,13 @@ function clickHelper(id) {
   set(id, helperObj[id].title)
 
   // 设置当前的对话消息记录
-  const records = JSON.parse(JSON.stringify(chat.value[id].chatRecords|| []))
+  const records = JSON.parse(JSON.stringify(chat.value[id].chatRecords|| [])).map(record => {
+    if (record.role === 'assistant') {
+      return { ...record, content: parseMarkdown(record.content) }
+    }
+    return record
+  })
+  
   store.msgRecord.value.splice(0, store.msgRecord.value.length, {
     role: 'welcome_bot',
   }, ...records)

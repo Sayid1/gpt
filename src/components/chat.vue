@@ -489,8 +489,6 @@ function showModal() {
       <template v-else>
         <div class="helper_welcome">
           <div class="first">
-            <!-- <img src="../assets/welcome-txt-bg.png" alt="" class="welcome_txt_bg"> -->
-            <!-- {{ store.activeChatId.value }} -->
             <span style="color: rgb(76, 117, 246); font-size: 16px; font-weight: 600;">您已进入助手模式，当前选择的助手为：{{ helperObj[store.activeChatId.value].title }}</span>
             <br>{{ helperObj[store.activeChatId.value].desc }}<br>
           </div>

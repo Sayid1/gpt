@@ -37,7 +37,7 @@ marked.setOptions({
 
 <template>
   
- <div className="prose w-full max-w-none" v-html="marked.parse(content)"></div>
+ <div className="prose w-full max-w-none" v-html="content"></div>
 </template>
 
 <style scoped lang="scss">
