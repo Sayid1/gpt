@@ -7,13 +7,6 @@ import helperCenter from './helper-center.vue'
 import chatContiner from './chat-continer.vue'
 
 const store = useGlobalState()
-const chatRef = ref(null)
-
-function enter() {
-  // nextTick(() => {
-  //   chatRef.value.scrollIntoView()
-  // })
-}
 </script>
 
 <template>
@@ -21,7 +14,7 @@ function enter() {
     <div class="out_wrap" :style="{height: store.showChat.value ? 'calc(100% - 200px)' : '100%'}">
       <template v-if="store.showChat.value">
 
-        <chat-continer ref="chatRef" v-if="store.msgRecord.value?.length" />
+        <chat-continer v-if="store.msgRecord.value?.length" />
 
         <div class="chat_content_wrapper" v-else>
           <welcome />
@@ -29,7 +22,7 @@ function enter() {
       </template>
       <helper-center v-else />
     </div>
-    <chat-input @enter="enter" v-if="store.showChat.value" />
+    <chat-input v-if="store.showChat.value" />
 
     <div class="tip">
       <p>所有内容均由人工智能模型输出，其内容的准确性和完整性无法保证，不代表我们的态度或观点。</p>

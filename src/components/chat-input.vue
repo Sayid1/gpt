@@ -30,7 +30,7 @@ const promptList = [
   { title: '活力方案', text: '你现在是个活动企划，公司要举办[新品发布会]，请制定一份详细的活动方案，包括活动主题、时间点、流程、人员安排、预算' },
   { title: '演讲稿', text: '现在你准备参加[时间的重量]的主题演讲，给出一份800字演讲稿，要求文字简洁、情真意切' },
 ]
-const emit = defineEmits(['enter'])
+// const emit = defineEmits(['enter'])
 
 const { fetch, isFetching, abort, data } = useSendMsg()
 
@@ -62,7 +62,7 @@ function sendMsg() {
     showModal()
     return
   }
-  emit('enter')
+  // emit('enter')
   store.isReanswer.value = false
   store.manualStop.value = false
   if (store.isGenerating.value) return

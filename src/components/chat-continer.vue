@@ -3,7 +3,7 @@ import { onMounted, ref, watch } from 'vue'
 import { useGlobalState } from '../store'
 import chatItem from './chat.vue'
 const store = useGlobalState()
-const containerRef = ref(null)
+// const containerRef = ref(null)
 
 // watch(store.msgRecord.value, () => {
 //   scrollIntoView()
@@ -26,7 +26,7 @@ const containerRef = ref(null)
 </script>
 
 <template>
-  <div ref="containerRef" class="mt-10">
+  <div class="mt-10">
     <chat-item :record="record" :last="i === store.msgRecord.value.length - 1" v-for="(record, i) in store.msgRecord.value" :key="i" />
   </div>
 </template>

@@ -48,7 +48,26 @@ function clickHelperItem(id) {
     <div class="card_wrapper gap-x-10">
       <div class="card_item" :class="{added: addedHelper.includes(helper.id)}" @click="clickHelperItem(helper.id)" v-for="helper in helperList" :key="helper.id">
         <div class="name_wrap " :style="{color: helper.badgeBg}">
-          <span role="img" class="anticon" style="pointer-events: none;"><svg version="1.1" width="38px" height="41px" viewBox="0 0 42.0 41.0"><defs><clipPath id="i0"><path d="M1440,0 L1440,796 L0,796 L0,0 L1440,0 Z"></path></clipPath><clipPath id="i1"><path d="M34,0 C38.418278,-8.11624501e-16 42,3.581722 42,8 L42,33 C42,37.418278 38.418278,41 34,41 L8,41 C3.581722,41 5.41083001e-16,37.418278 0,33 L0,8 C-5.41083001e-16,3.581722 3.581722,8.11624501e-16 8,0 L34,0 Z"></path></clipPath><clipPath id="i2"><path d="M19.354826,0 C20.0078224,2.98867098e-15 20.6493145,0.171887305 21.214826,0.498385502 L38.843194,10.6761285 C39.994166,11.3406425 40.703194,12.568715 40.703194,13.897743 L40.703194,33.102257 C40.703194,34.431285 39.994166,35.6593575 38.843194,36.3238715 L22.211597,45.9261285 C21.060625,46.5906425 19.642569,46.5906425 18.491597,45.9261285 L1.86000001,36.3238715 C0.709028,35.6593575 -2.05768706e-15,34.431285 0,33.102257 L0.00089241045,11.7092657 L0.257419751,0 L19.354826,0 Z"></path></clipPath></defs><g transform="translate(-384.0 -301.0)"><g clip-path="url(#i0)"><g transform="translate(384.0 301.0)"><g clip-path="url(#i1)"><g transform="translate(0.14840301106569243 -8.0)"><g clip-path="url(#i2)"><polygon points="0,8 40.703194,8 40.703194,46.424514 0,46.424514 0,8" stroke="none" fill="currentColor"></polygon></g></g></g></g></g></g></svg></span>
+          <span role="img" class="anticon" style="pointer-events: none;">
+            <svg version="1.1" width="38px" height="41px" viewBox="0 0 42.0 41.0">
+              <defs>
+                <clipPath id="i0">
+                  <path d="M1440,0 L1440,796 L0,796 L0,0 L1440,0 Z"></path>
+                </clipPath>
+                <clipPath id="i1">
+                  <path d="M34,0 C38.418278,-8.11624501e-16 42,3.581722 42,8 L42,33 C42,37.418278 38.418278,41 34,41 L8,41 C3.581722,41 5.41083001e-16,37.418278 0,33 L0,8 C-5.41083001e-16,3.581722 3.581722,8.11624501e-16 8,0 L34,0 Z"></path>
+                </clipPath>
+                <clipPath id="i2">
+                  <path d="M19.354826,0 C20.0078224,2.98867098e-15 20.6493145,0.171887305 21.214826,0.498385502 L38.843194,10.6761285 C39.994166,11.3406425 40.703194,12.568715 40.703194,13.897743 L40.703194,33.102257 C40.703194,34.431285 39.994166,35.6593575 38.843194,36.3238715 L22.211597,45.9261285 C21.060625,46.5906425 19.642569,46.5906425 18.491597,45.9261285 L1.86000001,36.3238715 C0.709028,35.6593575 -2.05768706e-15,34.431285 0,33.102257 L0.00089241045,11.7092657 L0.257419751,0 L19.354826,0 Z"></path>
+                </clipPath>
+              </defs>
+              <g transform="translate(-384.0 -301.0)">
+                <g clip-path="url(#i0)">
+                  <g transform="translate(384.0 301.0)">
+                    <g clip-path="url(#i1)">
+                      <g transform="translate(0.14840301106569243 -8.0)">
+                        <g clip-path="url(#i2)"><polygon points="0,8 40.703194,8 40.703194,46.424514 0,46.424514 0,8" stroke="none" fill="currentColor"></polygon></g></g></g></g></g></g></svg>
+          </span>
           <p class="!text-white">{{ helper.badge }}</p>
         </div>
         <div class="card_header">
