@@ -19,6 +19,9 @@ const sidebarCollapse = ref(false)
 const showMask = ref(true)
 const isShowModal = ref(false)
 const nowTime = ref('')
+const scroll = ref(null)
+const bar = ref(null)
+const mask = ref(null)
 
 const store = useGlobalState()
 const { set, remove, chat } = useChatCache()
@@ -33,14 +36,13 @@ function checkChat() {
     const index = keys.value.findIndex(item => {
       return !chat.value[item].chatRecords
     })
-    if (index != -1&&store.activeTab.value === 'history-chat') {
+    if (index != -1 && store.activeTab.value === 'history-chat') {
       store.activeChatId.value = keys.value[index]
       message({ type: 'warning', message: '请先尝试问我一个问题，再新建对话窗口吧!'})
       return true
     }
     return false
   }
-  // return false
 }
 
 function addChat() {
@@ -100,6 +102,9 @@ onMounted(() => {
     console.log(showMask.value)
     loopUser(sno)
   }
+  setTimeout(() => {
+    changeFontSize()
+  },500)
 })
 
 onBeforeUnmount(() => {
@@ -124,6 +129,31 @@ function showModal() {
 }
 function renewal() {
   router.push('/plans')
+}
+function changeFontSize() {
+  let barleft = 0;
+  bar.value.onmousedown = function (event)  {
+    var event = event || window.event;
+    var leftVal = event.clientX - bar.value.offsetLeft;
+    document.onmousemove = function(event){
+      var event = event || window.event;
+      barleft = event.clientX - leftVal;     
+      if(barleft < 0)
+      barleft = 0;
+      else if(barleft > scroll.value.offsetWidth - bar.value.offsetWidth)
+      barleft = scroll.value.offsetWidth - bar.value.offsetWidth;
+      if (barleft >= 16) {
+        mask.value.style.width = barleft +'px' ;
+        bar.value.style.left = barleft + "px";
+        store.chatFontSize.value = barleft + "px"
+      }
+      //防止选择内容--当拖动鼠标过快时候，弹起鼠标，bar也会移动，修复bug
+      window.getSelection ? window.getSelection().removeAllRanges() : document.selection.empty();
+    }
+  }
+  document.onmouseup = function(){
+    document.onmousemove = null; //弹起鼠标不做任何操作
+  }
 }
 </script>
 
@@ -160,7 +190,7 @@ function renewal() {
         </div>
       </div>
 
-      <div class="silder-content" v-show="!sidebarCollapse" :style="{height: store.userInfo.value?.id ? 'calc(100% - 310px)' : 'calc(100% - 246px)'}">
+      <div class="silder-content" v-show="!sidebarCollapse" :style="{height: store.userInfo.value?.id ? 'calc(100% - 310px)' : 'calc(100% - 276px)'}">
         <helper-list v-show="store.activeTab.value !== 'history-chat'" />
         <history-chat v-show="store.activeTab.value === 'history-chat'" />
       </div>
@@ -173,6 +203,16 @@ function renewal() {
           <!-- <span @click.stop="toPage('/contact-us')" class="cursor-pointer text-white">联系我们</span> -->
           <span v-if="store.userInfo.value?.id" @click.stop="toPage('/orders')" class="cursor-pointer text-white">我的订单</span>
           <span v-if="store.userInfo.value?.id" @click.stop="toPage('/plans')" class="cursor-pointer text-white">购买套餐</span>
+        </div>
+        <div class="pl-4 mb-4">
+         <div class="set-item-container grid  grid-cols-1">
+            <div class="txt" style="opacity:0.8;">字体大小：</div>
+            <div class="scroll" ref="scroll">
+              <div class="bar" ref="bar" ></div>
+              <div class="mask" ref="mask"></div>
+            </div>
+        </div>
+        <!-- <p style="opacity:0.5;font-size: 12px;">对话区域默认字体大小为：16号</p> -->
         </div>
       </div>
     </div>
@@ -200,7 +240,35 @@ function renewal() {
 </template>
 
 <style scoped lang="scss">
-
+.set-item-container{
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+}
+ .scroll{
+    width: 100px;
+    height: 4px;
+    background: rgba($color: #000000, $alpha: .2);
+    position: relative;
+    cursor: pointer;
+  }
+  .bar{
+    width: 4px;
+    height: 12px;
+    background: rgba($color: #fff, $alpha: .8);
+    position: absolute;
+    top: -4px;
+    left: 6px;
+    cursor: pointer;
+  }
+  .mask{
+    position: absolute;
+    left: 0;
+    top: 0;
+    background: rgba($color: #fff, $alpha: .8);
+    width: 6px;
+    height: 4px;
+  }
 // @media screen and (max-width: 1300px) {
 //   .ask-window {
 //     width: 780px;

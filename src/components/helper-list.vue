@@ -51,7 +51,7 @@ function clickHelper(id) {
   // 设置当前的对话消息记录
   const records = JSON.parse(JSON.stringify(chat.value[id].chatRecords|| [])).map(record => {
     if (record.role === 'assistant') {
-      return { ...record, content: parseMarkdown(record.content) }
+      return { ...record, rawContent: record.content, content: parseMarkdown(record.content) }
     }
     return record
   })

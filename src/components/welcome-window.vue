@@ -21,12 +21,10 @@ const isShowModal = ref(false)
 const router = useRouter()
 
 function clickQuestion(q) {
-  if (store.showMask.value) {
-      if (store.userInfo.value.id && store.userInfo.value.chatExpiredTime < store.userInfo.value.now) {
-        showModal()
-        return
-      }
-    }
+  if (store.showMask.value&&store.userInfo.value.id && store.userInfo.value.chatExpiredTime < store.userInfo.value.now) {
+    showModal()
+    return
+  }
   store.manualStop.value = false
   store.isReanswer.value = false
   let id = store.activeChatId.value
@@ -65,16 +63,16 @@ function renewal() {
   <div>
     <div class="chat_content">
       <img src="../assets/bot.png" class="user_image" alt="">
-      <div class="content_welcome_gpt">
+      <div class="content_welcome_gpt" :style="{'font-size': store.chatFontSize.value}">
         <!-- <img src="../assets/welcome-right.png" alt=""> -->
-        <p class="hello text-base">您好，我是讯飞星火认知大模型</p>
+        <p class="hello">您好，我是讯飞星火认知大模型</p>
         <p>能够学习和理解人类的语言，进行多轮对话</p>
         <p class="">回答问题，高效便捷地帮助人们获取信息、知识和灵感</p>
       </div>
     </div>
     <div class="prompt_wrapper">
       <div class="welcome_prompt">
-        <div class="flex flex-col gap-y-2  text-[#4257e9]">
+        <div class="flex flex-col gap-y-2  text-[#4257e9]" :style="{'font-size': store.chatFontSize.value}">
           <p class="text-gray-600">您可以在下方的输入框中输入您的问题，如：</p>
           <p class="cursor-pointer hover:font-bold" @click="clickQuestion(q)" v-for="q in commonQuestions" :key="q">{{ q }}</p>
         </div>
@@ -188,7 +186,7 @@ function renewal() {
       width: 495px;
     }
     p {
-      line-height: 28px;
+      // line-height: 28px;
     }
     .hello {
       // font-size: 22px;

@@ -35,8 +35,7 @@ function showModal() {
   isShowModal.value = true
   // qrcodeStatusTimer.value = setInterval(async () => {
   //   if (orderInfo.value.orderId) {
-  //     const { data } = await useFetch(`http://att.miclink.net/api/getPayCode?orderNo=${orderInfo.value.orderId}`).post().json()
-  //     setQrcodeUrl(data.value.data.codeUrl)
+  //     const { data } = await useFetch(`http://att.miclink.net/api/getPayCode?orderNo=${orderInfo.value.orderId}`).post().json()  //     setQrcodeUrl(data.value.data.codeUrl)
   //   }
   // }, 1000 * 1 * 3);
 }
