@@ -7,6 +7,7 @@ import {markedHighlight} from "marked-highlight";
 import hljs from 'highlight.js';
 import { useGlobalState } from './store'
 import './style.css';
+import { useHelperCache } from './utils'
 // import './prism.css'
 import App from './App.vue';
 import Home from './components/home.vue'
@@ -25,9 +26,8 @@ if (sno){
   sno = 'CHAT_'+ sno
   localStorage.setItem('sno', sno)
   // CHATGPT00009999
-  const { data, error, isFetching } = await useFetch(`http://8.129.170.108/api/register?account=${sno}&code=${sno}&password=${sno}&type=VISITOR`).post().json()
-  store.userInfo = data.value.data
-  console.log(store.userInfo)
+  const { data, error, isFetching } = await useFetch(`http://att.miclink.net/api/register?account=${sno}&code=${sno}&password=${sno}&type=VISITOR`).post().json()
+  store.userInfo.value = data.value.data
 }
 // const marked = new Marked({
 //   mangle: false,
@@ -69,3 +69,5 @@ app.mount ('#app');
 
 app.config.globalProperties.router = router
 
+const { init } = useHelperCache()
+init()

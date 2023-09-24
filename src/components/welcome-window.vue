@@ -21,11 +21,12 @@ const isShowModal = ref(false)
 const router = useRouter()
 
 function clickQuestion(q) {
-  if (store.userInfo.id && store.userInfo.chatExpiredTime < store.userInfo.now) {
-  // if (store.userInfo.id && store.userInfo.chatExpiredTime < +new Date()) {
-    showModal()
-    return
-  }
+  if (store.showMask.value) {
+      if (store.userInfo.value.id && store.userInfo.value.chatExpiredTime < store.userInfo.value.now) {
+        showModal()
+        return
+      }
+    }
   store.manualStop.value = false
   store.isReanswer.value = false
   let id = store.activeChatId.value

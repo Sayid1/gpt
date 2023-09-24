@@ -30,7 +30,7 @@ const promptList = [
   { title: '活力方案', text: '你现在是个活动企划，公司要举办[新品发布会]，请制定一份详细的活动方案，包括活动主题、时间点、流程、人员安排、预算' },
   { title: '演讲稿', text: '现在你准备参加[时间的重量]的主题演讲，给出一份800字演讲稿，要求文字简洁、情真意切' },
 ]
-const emit = defineEmits(['enter'])
+// const emit = defineEmits(['enter'])
 
 const { fetch, isFetching, abort, data } = useSendMsg()
 
@@ -51,19 +51,18 @@ onMounted(() => {
       return false
     }
     store.content.value = text
-    if (state == 2) {
+    if (state === 2) {
       sendMsg()
     }
   }
 })
 
 function sendMsg() {
-  if (store.userInfo.id && store.userInfo.chatExpiredTime < store.userInfo.now) {
-  // if (store.userInfo.id && store.userInfo.chatExpiredTime < +new Date()) {
+  if (store.showMask.value&&store.userInfo.value.id && store.userInfo.value.chatExpiredTime < store.userInfo.value.now) {
     showModal()
     return
   }
-  emit('enter')
+  // emit('enter')
   store.isReanswer.value = false
   store.manualStop.value = false
   if (store.isGenerating.value) return
@@ -100,7 +99,7 @@ function sendMsg() {
 function stop() {
   manualStop()
   store.manualStop.value = true
-  store.close.value(4001, 'manual close')
+  store.close.value(1000, 'manual close')
 }
 
 function closeModal() {
@@ -117,7 +116,7 @@ function backHome() {
   store.activeTab.value = 'history-chat'
   store.msgRecord.value = []
   store.activeChatId.value = ''
-  store.url.value = 'http://8.129.170.108/api/xfws'
+  store.url.value = 'http://att.miclink.net/api/xfws'
 }
 </script>
 

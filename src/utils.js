@@ -1,9 +1,37 @@
 import { useStorage, useFetch, useWebSocket } from '@vueuse/core'
 import { ref, watch, computed, watchEffect, nextTick } from 'vue'
 import { useGlobalState } from './store'
-import dayjs from 'dayjs'
-import prism from 'prismjs';
+import { marked } from 'marked';
+import hljs from 'highlight.js';
+import markedKatex from "marked-katex-extension";
+import 'highlight.js/styles/dark.css';
 
+
+marked.use(markedKatex({ throwOnError: false }))
+const customRenderer = new marked.Renderer();
+customRenderer.code = (code, lang) => {
+  const id = +new Date()
+  const highlightedCode = lang ? hljs.highlight(lang, code).value : hljs.highlightAuto(code).value;
+  return `<pre class="!m-0 !p-0"><div class="bg-black rounded-md mb-4"><div class="flex items-center relative text-gray-200 bg-gray-800 px-4 py-3 text-xs font-sans justify-between rounded-t-md"><span>${lang}</span><button class="flex ml-auto gap-2 copy-code" onclick="copyCode(${id})"><svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 stroke-2	" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>Copy code</button></div><code class="hljs ${lang}" id="code_${id}">${highlightedCode}</code></div></pre>`;
+};
+const mathRegex = /\$(.*?)\$/g;
+const parser = new DOMParser();
+// 重写渲染文本方法以支持数学公式
+customRenderer.text = function (text) {
+  return text.replace(mathRegex, (match, formula) => {
+    const parseHtml = marked.parse(parser.parseFromString(`<!doctype html><body>${match}`, 'text/html').body.textContent)
+    const parseHtmlWithoutPTag = /<p>(.*?)<\/p>/.exec(parseHtml)
+    if (parseHtmlWithoutPTag[1]) return parseHtmlWithoutPTag[1]
+    return parseHtml
+  });
+};
+marked.setOptions({
+  renderer: customRenderer,
+});
+
+export function parseMarkdown(content) {
+  return marked.parse(content)
+}
 export function genChatId() {
   const id = +new Date() + ''
   store.activeChatId.value = id
@@ -59,7 +87,7 @@ export function useChatCache() {
   }
   return { chat, set, update, remove }
 }
-
+const isInitHelper = useStorage('helper-init', false, localStorage)
 export function useHelperCache() {
   const helper = useStorage('helper-list', [], localStorage)
   function add(id) {
@@ -71,15 +99,29 @@ export function useHelperCache() {
     const index = helper.value.findIndex(id1 => id1 === id)
     helper.value.splice(index, 1)
   }
-  return { helper, add, remove }
+  function init() {
+    const { set } = useChatCache()
+    if (isInitHelper.value) return
+    helperList.forEach(helper => {
+      add(helper.id)
+      set(helper.id, helperObj[helper.id].title)
+    })
+    isInitHelper.value = true
+  }
+  return { helper, add, remove, init }
 }
 
 const { set, chat } = useChatCache()
+const genText = ref('')
+const completedText = ref('')
+const isCompleted = computed(() => genText.value !== '' && genText.value === completedText.value)
 
 export function useSendMsg() {
   const { isFetching, data, error, abort, statusCode, post } = useFetch(store.url, { immediate: false })
 
   function fetch(id, userInput, reanswer=false) {
+    genText.value = ''
+    completedText.value = ''
     store.isGenerating.value = true
     post().json().execute().then(() => {
       ws(id, data.value.data, userInput, reanswer)
@@ -88,32 +130,30 @@ export function useSendMsg() {
   return { fetch, isFetching, abort, data }
 }
 
-const genText = ref('')
-const completedText = ref('')
-const isCompleted = computed(() => genText.value === completedText.value)
 watch(isCompleted, newVal => {
   if (newVal) {
     store.isGenerating.value = false
     store.msgRecord.value.splice(store.msgRecord.value.length - 1, 1, {
       role: 'assistant',
-      content: genText.value,
+      content: marked.parse(genText.value),
       finished: true,
     })
   }
 })
 watch(genText, newVal => {
-  store.msgRecord.value.splice(store.msgRecord.value.length - 1, 1, {
-    role: 'assistant',
-    content: newVal,
-    finished: newVal === completedText.value,
-  })
+  if (newVal) {
+    store.msgRecord.value.splice(store.msgRecord.value.length - 1, 1, {
+      role: 'assistant',
+      content: marked.parse(newVal),
+      finished: store.wsClosed.value ? store.wsClosed.value : newVal === completedText.value,
+    })
+  }
 })
 
 export function manualStop() {
   completedText.value = genText.value
   store.wsClosed.value = true
   nextTick(() => {
-
     store.msgRecord.value.splice(store.msgRecord.value.length - 1, 1, {
       role: 'assistant',
       content: genText.value,
@@ -128,15 +168,31 @@ export function manualStop() {
   }
   set(store.activeChatId.value, cache)
 }
-
+function isPPT(text) {
+  var regex = /(做|生成|写|制作|提供|输出).*?PPT|ppt/ig;
+  return regex.test(text);
+}
+function isTable(text) {
+  var regex = /(做|写|建|生成|制|创).*?表/ig;
+  return regex.test(text);
+}
 function ws(id, path, userInput, reanswer) {
   const chatRecords = chat.value[id].chatRecords
   let text = []
+  let paramUserInput = userInput
+  if (isPPT(userInput)) {
+    if (paramUserInput.toLowerCase().indexOf('markdown') === -1) {
+      // paramUserInput += ",请使用MarkDown格式输出内容"
+      paramUserInput = "你是一名PPT撰写专家，擅长帮助别人撰写一份完整演示文档，并且通过markdown的代码来提供，第一行必需是#，第二行是##，不需要输出目录,不使用列表项的-符号。这次别人的要求是"+paramUserInput
+    }
+  } else if (isTable(userInput)) {
+    paramUserInput += ",请使用Markdown的表格格式输出内容"
+  }
   if (chatRecords) {
     text = chatRecords.filter(record => record.role !== 'welcome_bot').slice(0, 6)
-    if (!reanswer) text.push({ "role": "user", "content":  userInput })
+    if (!reanswer) text.push({ "role": "user", "content":  paramUserInput })
   } else {
-    text = [{ "role": "user", "content":  userInput }]
+    text = [{ "role": "user", "content":  paramUserInput }]
   }
   var textresult = ''
   var i = 0
@@ -146,16 +202,30 @@ function ws(id, path, userInput, reanswer) {
       var dd = eval("("+e.data+")");
       textresult += dd.payload.choices.text[0].content;
       for(var j=i; j<textresult.length; j++) {
-        var delay = j * 12;
-        timer.push(setTimeout(function () {
-          i++
-          var text = textresult.slice(0, i)
-          genText.value = text
-          var textOld = textresult.slice(0, i-1)
-          if (text === textOld) {
-            i--
-          }
-        }, delay));
+        var delay = j * 50;
+        // console.log(j, textresult, genText.value ,completedText.value)
+        if (genText.value === '' || genText.value !== completedText.value) {
+          timer.push(setTimeout(function () {
+            i++
+            var text1 = textresult.slice(0, i)
+            genText.value = text1
+            if (genText.value !== '' && genText.value === completedText.value) {
+              timer.forEach(t => clearTimeout(t))
+            } else {
+
+              // console.log(text1)
+              // store.msgRecord.value.splice(store.msgRecord.value.length - 1, 1, {
+              //   role: 'assistant',
+              //   content: marked.parse(text1),
+              //   finished: text1 === completedText.value,
+              // })
+              var textOld = textresult.slice(0, i-1)
+              if (text === textOld) {
+                i--
+              }
+            }
+          }, delay));
+        }
       }
     },
     onDisconnected() {
@@ -170,6 +240,7 @@ function ws(id, path, userInput, reanswer) {
     }
   })
   watch(status, () => {
+    console.log('status.value', status.value)
     if (status.value === 'OPEN') {
       store.wsClosed.value = false
       var params = {
@@ -177,9 +248,10 @@ function ws(id, path, userInput, reanswer) {
         "parameter": { "chat": { "domain": "generalv2", "max_tokens":4096 } },
         "payload": { "message": { "text": text} }
       }
+      console.log(text)
       send(JSON.stringify(params))
     }
-  })
+  }),
   store.close.value = close
 }
 

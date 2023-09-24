@@ -6,10 +6,13 @@ import hljs from 'highlight.js';
 // import katex from 'katex';
 import markedKatex from "marked-katex-extension";
 import 'highlight.js/styles/dark.css';
+import { useGlobalState } from '../store'
 
 defineProps({
   content: String
 })
+
+const store = useGlobalState()
 
 marked.use(markedKatex({ throwOnError: false }))
 const customRenderer = new marked.Renderer();
@@ -31,13 +34,13 @@ customRenderer.text = function (text) {
 };
 marked.setOptions({
   renderer: customRenderer,
-});;
+});
 
 </script>
 
 <template>
   
- <div className="prose w-full max-w-none" v-html="marked.parse(content)"></div>
+ <div className="prose w-full max-w-none" :style="{'font-size': store.chatFontSize.value}" v-html="content"></div>
 </template>
 
 <style scoped lang="scss">

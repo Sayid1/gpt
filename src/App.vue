@@ -1,16 +1,17 @@
 <script setup async>
-import { ref, onMounted,onUnmounted, onBeforeUnmount } from 'vue'
+import { computed, ref, onMounted,onUnmounted, onBeforeUnmount } from 'vue'
 import { useGlobalState } from './store'
-import { useClipboard,useFetch } from '@vueuse/core'
+import { useClipboard, useFetch } from '@vueuse/core'
 import { useRouter, useRoute } from 'vue-router'
 import historyChat from './components/history-chat.vue'
 import welcome from './components/welcome-window.vue'
 import helperList from './components/helper-list.vue'
 import contactUs from './components/contact-us.vue'
 import Modal from './components/modal.vue'
+import message from './components/message/message.js'
 import dayjs from 'dayjs'
 
-import { genChatId, useChatCache } from './utils'
+import { genChatId, useChatCache, helperObj } from './utils'
 
 const { copy } = useClipboard()
 
@@ -20,21 +21,32 @@ const isShowModal = ref(false)
 const nowTime = ref('')
 
 const store = useGlobalState()
-const { set, remove } = useChatCache()
+const { set, remove, chat } = useChatCache()
 const router = useRouter()
 
 function checkChat() {
   if (store.isGenerating.value) {
     message({ type: 'warning', message: '对话进行中，请稍后再试'})
     return true
+  } else {
+    const keys = computed(() => Object.keys(chat.value).reverse().filter(key => !helperObj[key]))
+    const index = keys.value.findIndex(item => {
+      return !chat.value[item].chatRecords
+    })
+    if (index != -1&&store.activeTab.value === 'history-chat') {
+      store.activeChatId.value = keys.value[index]
+      message({ type: 'warning', message: '请先尝试问我一个问题，再新建对话窗口吧!'})
+      return true
+    }
+    return false
   }
-  return false
+  // return false
 }
 
 function addChat() {
   if (checkChat()) return
   router.push('/')
-  store.url.value = 'http://8.129.170.108/api/xfws'
+  store.url.value = 'http://att.miclink.net/api/xfws'
   store.activeTab.value = 'history-chat'
   store.showChat.value = true
   let id = genChatId()
@@ -62,7 +74,19 @@ function toPage(route) {
 }
 
 window.copyCode = function(id) {
-  copy(document.getElementById('code_' + id).textContent)
+  const content = document.getElementById('code_' + id).textContent
+  if (navigator.clipboard) {
+    copy(content)
+  } else {
+    const inputDom = document.createElement('textarea');
+    inputDom.setAttribute('readonly', 'readonly');
+    inputDom.value = content;
+    inputDom.style.opacity = 0
+    document.body.appendChild(inputDom);
+    inputDom.select();
+    document.execCommand('copy');
+    document.body.removeChild(inputDom);
+  }
   message('复制成功')
 }
 
@@ -84,13 +108,12 @@ onBeforeUnmount(() => {
 onUnmounted(() => {
   if (nowTime.value) clearInterval(nowTime.value)
 })
-
 function loopUser (sno) {
   sno = 'CHAT_'+ sno
   nowTime.value = setInterval(async () => {
-    const { data } = await useFetch(`http://8.129.170.108/api/register?account=${sno}&code=${sno}&password=${sno}&type=VISITOR`).post().json()
-    store.userInfo = data.value.data
-  },1800000)
+    const { data } = await useFetch(`http://att.miclink.net/api/register?account=${sno}&code=${sno}&password=${sno}&type=VISITOR`).post().json()
+    store.userInfo.value = data.value.data
+  },1000 * 60 * 30)
 }
 
 function closeModal() {
@@ -102,18 +125,15 @@ function showModal() {
 function renewal() {
   router.push('/plans')
 }
-
-
-
-
 </script>
 
 <template>
   <div class="root">
     <div class="sidebar" :class="{'sidebar__collapse': sidebarCollapse }">
       <div v-show="!sidebarCollapse">
-        <div class="logo">
-          <img src="./assets/logo.png" alt="">
+        <div class="logo items-center gap-x-3">
+          <img src="./assets/logo.svg" alt="">
+          <span class="text-white text-lg font-semibold">讯飞星火认知大模型</span>
         </div>
         <div class="actions-btn" v-show="!sidebarCollapse">
           <div class="btn help-center" @click="changeToHelperCenterRoot">
@@ -140,19 +160,19 @@ function renewal() {
         </div>
       </div>
 
-      <div class="silder-content" v-show="!sidebarCollapse" :style="{height: store.userInfo.id ? 'calc(100% - 310px)' : 'calc(100% - 246px)'}">
+      <div class="silder-content" v-show="!sidebarCollapse" :style="{height: store.userInfo.value?.id ? 'calc(100% - 310px)' : 'calc(100% - 246px)'}">
         <helper-list v-show="store.activeTab.value !== 'history-chat'" />
         <history-chat v-show="store.activeTab.value === 'history-chat'" />
       </div>
-      <div v-show="!sidebarCollapse" class="absolute bottom-4 inset-x-0 w-[266px] py-2" :class="{'h-[102px]': store.userInfo.id}">
-        <div class="text-gray-600 pl-4 mb-4" v-if="store.userInfo.id">
-          <p class="mb-1">设备号：{{ store.userInfo.mac }}</p>
-          <p>服务有效期：{{ store.userInfo.chatExpiredTime ? dayjs(store.userInfo.chatExpiredTime).format('YYYY-MM-DD HH:mm:ss') : '已过期'}}</p>
+      <div v-show="!sidebarCollapse" class="absolute bottom-4 inset-x-0 w-[266px] py-2" :class="{'h-[102px]': store.userInfo.value?.id}">
+        <div class="text-gray-600 pl-4 mb-4" v-if="store.userInfo.value?.id">
+          <p class="mb-1">设备号：{{ store.userInfo.value.mac }}</p>
+          <p>服务有效期：{{ store.userInfo.value.chatExpiredTime ? dayjs(store.userInfo.value.chatExpiredTime).format('YYYY-MM-DD HH:mm:ss') : '已过期'}}</p>
         </div>
-        <div class="grid grid-cols-1 divide-x text-sm text-center" :class="{'!grid-cols-3': store.userInfo.id}">
-          <span @click.stop="toPage('/contact-us')" class="cursor-pointer text-white">联系我们</span>
-          <span v-if="store.userInfo.id" @click.stop="toPage('/orders')" class="cursor-pointer text-white">我的订单</span>
-          <span v-if="store.userInfo.id" @click.stop="toPage('/plans')" class="cursor-pointer text-white">购买套餐</span>
+        <div class="grid grid-cols-1 divide-x text-sm text-center" :class="{'!grid-cols-3': store.userInfo.value?.id}">
+          <!-- <span @click.stop="toPage('/contact-us')" class="cursor-pointer text-white">联系我们</span> -->
+          <span v-if="store.userInfo.value?.id" @click.stop="toPage('/orders')" class="cursor-pointer text-white">我的订单</span>
+          <span v-if="store.userInfo.value?.id" @click.stop="toPage('/plans')" class="cursor-pointer text-white">购买套餐</span>
         </div>
       </div>
     </div>
@@ -165,25 +185,14 @@ function renewal() {
     </main>
 
     <!-- <div class="fixed inset-0 z-[9999]" v-if="showMask" @click="showModal"></div> -->
-    <!-- <Modal size="xs" v-if="isShowModal" @close="closeModal" :overlayer="true"> -->
     <Modal size="xs" v-if="showMask" @close="closeModal" :overlayer="true">
       <template #body>
-        <div class="flex gap-x-2 items-center px-3 py-2 pt-9 w-96 text-base">
+        <div class="flex gap-x-2 items-center px-3 py-2 w-52 text-base">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" class="stroke-orange-400	w-7 h-7">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
           </svg>
 
           <span class="font-semibold">缺少当前设备号</span>
-        </div>
-      </template>
-      <template #footer>
-        <div class="flex justify-end gap-x-4">
-          <!-- <button @click="closeModal" type="button" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 ">
-            取消
-          </button>
-          <button @click="renewal" type="button" class="text-white bg-blue-500 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center ">
-            续费
-          </button> -->
         </div>
       </template>
     </Modal>
@@ -274,13 +283,12 @@ function renewal() {
   color: #9190ff;
   display: flex;
   height: 64px;
-  justify-content: space-between;
-  padding: 0 34px;
+  padding: 0 24px;
   width: 100%;
   img {
     display: block;
     height: auto;
-    width: 85px;
+    width: 28.5px;
   }
 }
 .tabs {

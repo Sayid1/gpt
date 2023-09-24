@@ -1,7 +1,7 @@
 <script setup>
 import { computed, ref, nextTick, onMounted, onUnmounted, toRefs } from 'vue'
 import { useRouter } from 'vue-router'
-import { useChatCache, helperObj } from '../utils'
+import { useChatCache, helperObj, parseMarkdown } from '../utils'
 import { useGlobalState } from '../store'
 import Modal from './modal.vue'
 import message from './message/message.js'
@@ -23,7 +23,6 @@ function checkChat() {
   return false
 }
 async function modifyChat(id, index) {
-  console.log(1)
   if (checkChat()) return
   editId.value = id
   await nextTick()
@@ -36,7 +35,6 @@ function cancel() {
 
 let removeChatId
 function confirmRemoveChat(id) {
-  console.log(3)
   if (checkChat()) return
   removeChatId = id
   showModal()
@@ -61,14 +59,17 @@ function clickHistoryChatItem(id) {
   if (checkChat()) return
   router.push('/')
   store.activeChatId.value = id
-  // nextTick(() => {
     store.showChat.value = true
     // 设置侧边栏激活的对话id
     
-    store.url.value = 'http://8.129.170.108/api/xfws'
+    store.url.value = 'http://att.miclink.net/api/xfws'
     // 设置当前的对话消息记录
-    store.msgRecord.value = JSON.parse(JSON.stringify(chat.value[id].chatRecords || []))
-  // })
+    store.msgRecord.value = JSON.parse(JSON.stringify(chat.value[id].chatRecords || [])).map(record => {
+      if (record.role === 'assistant') {
+        return { ...record, content: parseMarkdown(record.content) }
+      }
+      return record
+    })
 }
 
 function closeModal() {

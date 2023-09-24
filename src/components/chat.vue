@@ -82,7 +82,6 @@ onMounted(() => {
 
 function copyToClipboard(content) {
   if (checkChat()) return
-    // copy(content)
   if (navigator.clipboard) {
     copy(content)
   } else {
@@ -194,25 +193,20 @@ function pptExport(i){
   // const url =	"https://mindshow.fun/#/home?channel=miclink&markdown="+encodeURIComponent(content);
   // window.open(url,"_blank");		
   const urlParams = new URLSearchParams(window.location.search)
-  const ppt = urlParams.get('ppt')
   let sno = urlParams.get('sno')
   // const url =	"https://mindshow.fun/#/home?channel=miclink&markdown="+encodeURIComponent(content);
   // window.open(url,"_blank");		
-  if(ppt === 'iframe'){ 
     if(!sno){ 
       sno = 'MicLink'; 
-    } else {
-      sno = 'CHAT_'+ sno
-    }
+    } 
     var tdata = encodeURIComponent(content); 
     var tkey = new Date().getTime(); 
     localStorage.setItem(tkey,tdata)
-    const url = "http://chat.miclink.net/ppt.html?sno="+sno+"&markdown="+tkey;
+    const http = window.location.host
+    //  "http://chatai.miclink.net/ppt.html" //支付
+    //  "http://chatgpt.miclink.net/ppt.html" //免费
+    const url = http +"/ppt.html?sno="+sno+"&markdown="+tkey;
     window.open(url,"_blank"); 
-  }else{ 
-    const url = "https://mindshow.fun/#/home?channel=miclink&markdown="+encodeURIComponent(content); 
-    window.open(url,"_blank");  
-  }
 }
 
 function table2json(table) {
@@ -429,7 +423,7 @@ function showModal() {
     <div class="chat_content">
       <img v-if="props.record.role === 'user'" src="../assets/avatar.png" class="user_image" alt="">
       <img v-else src="../assets/bot.png" class="user_image" alt="">
-      <div class="content_welcome_gpt mb-8" v-if="props.record.role === 'user'" v-html="props.record.content ">
+      <div class="content_welcome_gpt mb-8" v-if="props.record.role === 'user'" v-html="props.record.content " :style="{'font-size': store.chatFontSize.value}">
        
       </div>
       <template v-else-if="props.record.role === 'assistant'">
@@ -441,7 +435,7 @@ function showModal() {
         </div>
         <div v-else class="w-full">
           <div :id="'markdown_body_' + id" class="content_welcome_gpt mb-6 bg-[rgb(255_255_255_/_100%)] pt-[25px] pb-[15px] px-[38px]">
-            <!-- <div v-html="marked.parse(props.record.content)"></div> -->
+            <!-- <div v-html="marked.parse(props.record.)"></div> -->
             <markdown :content="props.record.content" />
             <div class="flex justify-end mt-6">
 
@@ -449,7 +443,6 @@ function showModal() {
                 <span class="mr-1.5"><svg width="18px" height="16px" viewBox="0 0 18 16"><title>刷新</title><desc>Created with Sketch.</desc><g id="页面-1" stroke="none" stroke-width="1" fill-rule="evenodd"><g id="gpt沉浸版" transform="translate(-407.000000, -452.000000)" fill-rule="nonzero"><g id="刷新" transform="translate(407.000000, 452.000000)" fill="currentColor"><path d="M12.8399955,13.3052511 C11.7364403,13.9789482 10.463092,14.3999941 9.18974373,14.3999941 C5.45457554,14.3999941 2.4834362,11.5368308 2.4834362,7.9157928 C2.4834362,6.98946423 2.65320934,6.14737247 3.07767203,5.30526098 L3.16254865,5.894741 C3.24744517,6.23156981 3.67188796,6.40000395 4.01145413,6.31578688 C4.3510203,6.23156981 4.52079344,5.81052393 4.43589692,5.47367538 L3.67188796,3.19999211 C3.58701134,2.8631633 3.16254865,2.69472916 2.82300237,2.77894623 L0.446078967,3.62105772 C0.106512796,3.70525506 -0.0632603415,4.12632067 0.0216361753,4.46314948 C0.106512796,4.79999803 0.530975484,4.96841243 0.870521759,4.8842151 L1.80432376,4.63158362 C1.29498445,5.72630686 0.955418276,6.82104983 0.955418276,8.0842072 C0.955418276,12.4631593 4.60568995,16 9.10484722,16 C10.7177617,16 12.2457796,15.5789344 13.6040045,14.7368426 C13.9435714,14.4842111 14.0284672,14.0631455 13.8586741,13.7263167 C13.6040045,13.2210538 13.1795617,13.0526196 12.8399955,13.3052511 Z M17.9333886,11.7052649 C17.7636155,11.3684164 17.4240493,11.200002 17.084503,11.3684164 L16.3204941,11.7052649 C16.9996065,10.5263049 17.3391727,9.26314751 17.3391727,7.9157928 C17.3391727,3.53684065 13.688901,0 9.18974373,0 C7.49193277,0 5.96391485,0.50526295 4.60568995,1.34737445 C4.26612305,1.60000592 4.18122727,2.0210518 4.3510203,2.35790035 C4.60568995,2.69472916 5.03013275,2.77894623 5.36969892,2.52631475 C6.47325416,1.8526374 7.74660243,1.43157178 9.10484722,1.43157178 C12.8399955,1.43157178 15.8111547,4.29473508 15.8111547,7.9157928 C15.8111547,9.01051603 15.5564851,10.0210419 15.0471458,10.9473705 C15.0471458,10.9473705 15.0471458,11.0315678 14.9622493,11.0315678 L14.7075796,10.3578905 C14.5378065,10.0210419 14.1982403,9.85262753 13.8586741,10.0210419 C13.5191279,10.1894761 13.3493348,10.5263049 13.5191279,10.8631534 L14.45291,13.1368367 C14.6226831,13.4736852 14.9622493,13.6420997 15.3018154,13.4736852 L17.5938423,12.5473567 C17.9333886,12.3789423 18.1031816,12.0420937 17.9333886,11.7052649 L17.9333886,11.7052649 Z" id="形状"></path></g></g></g></svg></span>
                 重新回答
               </div> -->
-
               <div class="flex gap-x-2" v-if="props.record.finished">
                 <span class="flex text-xs items-center gap-x-1 cursor-pointer" @click.stop="copyToClipboard(props.record.content)">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" class="w-5 h-5 stroke-[#7e84a3] ">
@@ -492,8 +485,6 @@ function showModal() {
       <template v-else>
         <div class="helper_welcome">
           <div class="first">
-            <!-- <img src="../assets/welcome-txt-bg.png" alt="" class="welcome_txt_bg"> -->
-            <!-- {{ store.activeChatId.value }} -->
             <span style="color: rgb(76, 117, 246); font-size: 16px; font-weight: 600;">您已进入助手模式，当前选择的助手为：{{ helperObj[store.activeChatId.value].title }}</span>
             <br>{{ helperObj[store.activeChatId.value].desc }}<br>
           </div>
@@ -591,7 +582,7 @@ function showModal() {
 }
 .chat_content {
   display: flex;
-  font-size: 15px;
+  font-size: 16px;
   height: auto;
   // left: -22px;
   margin: 0 auto;
