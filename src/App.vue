@@ -1,5 +1,5 @@
 <script setup async>
-import { ref, onMounted,onUnmounted, onBeforeUnmount } from 'vue'
+import { computed, ref, onMounted,onUnmounted, onBeforeUnmount } from 'vue'
 import { useGlobalState } from './store'
 import { useClipboard, useFetch } from '@vueuse/core'
 import { useRouter, useRoute } from 'vue-router'
@@ -11,7 +11,7 @@ import Modal from './components/modal.vue'
 import message from './components/message/message.js'
 import dayjs from 'dayjs'
 
-import { genChatId, useChatCache } from './utils'
+import { genChatId, useChatCache, helperObj } from './utils'
 
 const { copy } = useClipboard()
 
@@ -19,23 +19,36 @@ const sidebarCollapse = ref(false)
 const showMask = ref(true)
 const isShowModal = ref(false)
 const nowTime = ref('')
+const scroll = ref(null)
+const bar = ref(null)
+const mask = ref(null)
 
 const store = useGlobalState()
-const { set, remove } = useChatCache()
+const { set, remove, chat } = useChatCache()
 const router = useRouter()
 
 function checkChat() {
   if (store.isGenerating.value) {
     message({ type: 'warning', message: '对话进行中，请稍后再试'})
     return true
+  } else {
+    const keys = computed(() => Object.keys(chat.value).reverse().filter(key => !helperObj[key]))
+    const index = keys.value.findIndex(item => {
+      return !chat.value[item].chatRecords
+    })
+    if (index != -1 && store.activeTab.value === 'history-chat') {
+      store.activeChatId.value = keys.value[index]
+      message({ type: 'warning', message: '请先尝试问我一个问题，再新建对话窗口吧!'})
+      return true
+    }
+    return false
   }
-  return false
 }
 
 function addChat() {
   if (checkChat()) return
   router.push('/')
-  store.url.value = 'http://8.129.170.108/api/xfws'
+  store.url.value = 'http://att.miclink.net/api/xfws'
   store.activeTab.value = 'history-chat'
   store.showChat.value = true
   let id = genChatId()
@@ -89,6 +102,9 @@ onMounted(() => {
     console.log(showMask.value)
     loopUser(sno)
   }
+  setTimeout(() => {
+    changeFontSize()
+  },500)
 })
 
 onBeforeUnmount(() => {
@@ -100,7 +116,7 @@ onUnmounted(() => {
 function loopUser (sno) {
   sno = 'CHAT_'+ sno
   nowTime.value = setInterval(async () => {
-    const { data } = await useFetch(`http://8.129.170.108/api/register?account=${sno}&code=${sno}&password=${sno}&type=VISITOR`).post().json()
+    const { data } = await useFetch(`http://att.miclink.net/api/register?account=${sno}&code=${sno}&password=${sno}&type=VISITOR`).post().json()
     store.userInfo.value = data.value.data
   },1000 * 60 * 30)
 }
@@ -113,6 +129,31 @@ function showModal() {
 }
 function renewal() {
   router.push('/plans')
+}
+function changeFontSize() {
+  let barleft = 0;
+  bar.value.onmousedown = function (event)  {
+    var event = event || window.event;
+    var leftVal = event.clientX - bar.value.offsetLeft;
+    document.onmousemove = function(event){
+      var event = event || window.event;
+      barleft = event.clientX - leftVal;     
+      if(barleft < 0)
+      barleft = 0;
+      else if(barleft > scroll.value.offsetWidth - bar.value.offsetWidth)
+      barleft = scroll.value.offsetWidth - bar.value.offsetWidth;
+      if (barleft >= 16) {
+        mask.value.style.width = barleft +'px' ;
+        bar.value.style.left = barleft + "px";
+        store.chatFontSize.value = barleft + "px"
+      }
+      //防止选择内容--当拖动鼠标过快时候，弹起鼠标，bar也会移动，修复bug
+      window.getSelection ? window.getSelection().removeAllRanges() : document.selection.empty();
+    }
+  }
+  document.onmouseup = function(){
+    document.onmousemove = null; //弹起鼠标不做任何操作
+  }
 }
 </script>
 
@@ -163,6 +204,16 @@ function renewal() {
           <span v-if="store.userInfo.value?.id" @click.stop="toPage('/orders')" class="cursor-pointer text-white">我的订单</span>
           <span v-if="store.userInfo.value?.id" @click.stop="toPage('/plans')" class="cursor-pointer text-white">购买套餐</span>
         </div>
+        <div class="pl-4 mb-4">
+         <div class="set-item-container grid  grid-cols-1">
+            <div class="txt" style="opacity:0.8;">字体大小：</div>
+            <div class="scroll" ref="scroll">
+              <div class="bar" ref="bar" ></div>
+              <div class="mask" ref="mask"></div>
+            </div>
+        </div>
+        <p style="opacity:0.5;font-size: 12px;">对话区域默认字体大小为：14号</p>
+        </div>
       </div>
     </div>
     <div class="stretch_box" :class="{'stretch_box__collapse': sidebarCollapse }" @click="sidebarCollapse=!sidebarCollapse">
@@ -189,7 +240,35 @@ function renewal() {
 </template>
 
 <style scoped lang="scss">
-
+.set-item-container{
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+}
+ .scroll{
+    width: 100px;
+    height: 4px;
+    background: rgba($color: #000000, $alpha: .2);
+    position: relative;
+    cursor: pointer;
+  }
+  .bar{
+    width: 4px;
+    height: 12px;
+    background: #fff;
+    position: absolute;
+    top: -4px;
+    left: 6px;
+    cursor: pointer;
+  }
+  .mask{
+    position: absolute;
+    left: 0;
+    top: 0;
+    background: #fff;
+    width: 6px;
+    height: 4px;
+  }
 // @media screen and (max-width: 1300px) {
 //   .ask-window {
 //     width: 780px;

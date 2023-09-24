@@ -5,7 +5,7 @@ import { useGlobalState } from '../store'
 import dayjs from 'dayjs'
 
 const store = useGlobalState()
-const { isFetching, data, error } = useFetch(`http://8.129.170.108/api/orderList?token=${store.userInfo.value.token}&type=CHATGPT`).json()
+const { isFetching, data, error } = useFetch(`http://att.miclink.net/api/orderList?token=${store.userInfo.value.token}&type=CHATGPT`).json()
 
 const STATUS = {
   SUCCESS: '已支付',

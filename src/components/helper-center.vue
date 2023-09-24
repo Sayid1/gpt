@@ -26,7 +26,7 @@ function clickHelperItem(id) {
     add(id)
   }
 
-  store.url.value = 'http://8.129.170.108/api/xfws?assistantId=' + id
+  store.url.value = 'http://att.miclink.net/api/xfws?assistantId=' + id
   store.activeChatId.value = id
   // 设置当前的对话消息记录
   const records = JSON.parse(JSON.stringify(chat.value[id].chatRecords || []))

@@ -19,7 +19,7 @@ const isShowModal = ref(false)
 const router = useRouter()
 
 // 查询套餐列表
-const { data, error, isFetching, } = useFetch('http://8.129.170.108/api/goods?type=CHATGPT').json()
+const { data, error, isFetching, } = useFetch('http://att.miclink.net/api/goods?type=CHATGPT').json()
 const INDEX = {
   0: '一',
   1: '二',
@@ -35,8 +35,7 @@ function showModal() {
   isShowModal.value = true
   // qrcodeStatusTimer.value = setInterval(async () => {
   //   if (orderInfo.value.orderId) {
-  //     const { data } = await useFetch(`http://8.129.170.108/api/getPayCode?orderNo=${orderInfo.value.orderId}`).post().json()
-  //     setQrcodeUrl(data.value.data.codeUrl)
+  //     const { data } = await useFetch(`http://att.miclink.net/api/getPayCode?orderNo=${orderInfo.value.orderId}`).post().json()  //     setQrcodeUrl(data.value.data.codeUrl)
   //   }
   // }, 1000 * 1 * 3);
 }
@@ -46,14 +45,14 @@ watch([payType, planRef], async () => {
   if (payStatusTimer.value) clearInterval(payStatusTimer.value)
   qrcodeFetchig.value = true
   // 生成订单获取二维码url
-  const { data, error, isFetching, } = await useFetch(`http://8.129.170.108/api/pay?goodsId=${planRef.value.goodsId}&goodsSpecsId=${planRef.value.id}&goodsType=CHATGPT&payType=${payType.value}&token=${store.userInfo.value.token}&source=NATIVE`).json()
+  const { data, error, isFetching, } = await useFetch(`http://att.miclink.net/api/pay?goodsId=${planRef.value.goodsId}&goodsSpecsId=${planRef.value.id}&goodsType=CHATGPT&payType=${payType.value}&token=${store.userInfo.value.token}&source=NATIVE`).json()
   orderInfo.value = data.value.data
   setQrcodeUrl(data.value.data.codeUrl)
 })
 
 async function refreshQrcode() {
   if (orderInfo.value.orderId) {
-    const { data } = await useFetch(`http://8.129.170.108/api/getPayCode?orderNo=${orderInfo.value.orderId}`).post().json()
+    const { data } = await useFetch(`http://att.miclink.net/api/getPayCode?orderNo=${orderInfo.value.orderId}`).post().json()
     setQrcodeUrl(data.value.data.codeUrl)
   }
 }
@@ -79,12 +78,12 @@ onUnmounted(() => {
 })
 
 async function loopStatus() {
-  const { data, error, isFetching, } = await useFetch(`http://8.129.170.108/api/queryOrderStatus?orderNo=${orderInfo.value.orderId}`).json()
+  const { data, error, isFetching, } = await useFetch(`http://att.miclink.net/api/queryOrderStatus?orderNo=${orderInfo.value.orderId}`).json()
   if (data.value.data.orderStatus === 'SUCCESS') {
     message('购买成功！')
     const urlParams = new URLSearchParams(window.location.search)
     const sno = urlParams.get('sno')
-    const { data: userData } = await useFetch(`http://8.129.170.108/api/register?account=${sno}&code=${sno}&password=${sno}&type=VISITOR`).post().json()
+    const { data: userData } = await useFetch(`http://att.miclink.net/api/register?account=${sno}&code=${sno}&password=${sno}&type=VISITOR`).post().json()
     store.userInfo.value = userData.value.data
     if (payStatusTimer.value) clearInterval(payStatusTimer.value)
     router.push('/orders')

@@ -186,7 +186,7 @@ function renewal() {
       width: 495px;
     }
     p {
-      line-height: 28px;
+      // line-height: 28px;
     }
     .hello {
       // font-size: 22px;

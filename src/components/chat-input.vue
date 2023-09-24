@@ -99,7 +99,7 @@ function sendMsg() {
 function stop() {
   manualStop()
   store.manualStop.value = true
-  store.close.value(4001, 'manual close')
+  store.close.value(1000, 'manual close')
 }
 
 function closeModal() {
@@ -116,7 +116,7 @@ function backHome() {
   store.activeTab.value = 'history-chat'
   store.msgRecord.value = []
   store.activeChatId.value = ''
-  store.url.value = 'http://8.129.170.108/api/xfws'
+  store.url.value = 'http://att.miclink.net/api/xfws'
 }
 </script>
 

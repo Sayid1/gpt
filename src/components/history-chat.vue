@@ -62,11 +62,11 @@ function clickHistoryChatItem(id) {
     store.showChat.value = true
     // 设置侧边栏激活的对话id
     
-    store.url.value = 'http://8.129.170.108/api/xfws'
+    store.url.value = 'http://att.miclink.net/api/xfws'
     // 设置当前的对话消息记录
     store.msgRecord.value = JSON.parse(JSON.stringify(chat.value[id].chatRecords || [])).map(record => {
       if (record.role === 'assistant') {
-        return { ...record, content: parseMarkdown(record.content) }
+        return { ...record, rawContent: record.content, content: parseMarkdown(record.content) }
       }
       return record
     })
