@@ -1,11 +1,14 @@
 <script setup>
-import { marked } from 'marked';
-import { v4 } from 'uuid'
-import {markedHighlight} from "marked-highlight";
-import hljs from 'highlight.js';
-// import katex from 'katex';
-import markedKatex from "marked-katex-extension";
-import 'highlight.js/styles/dark.css';
+import { useGlobalState } from '../store'
+// import { marked } from 'marked';
+// import { v4 } from 'uuid'
+// import {markedHighlight} from "marked-highlight";
+// import hljs from 'highlight.js';
+// // import katex from 'katex';
+// import markedKatex from "marked-katex-extension";
+// import 'highlight.js/styles/dark.css';
+
+const store = useGlobalState()
 
 defineProps({
   content: String
@@ -37,7 +40,7 @@ defineProps({
 
 <template>
   
- <div className="prose w-full max-w-none" v-html="content"></div>
+ <div className="prose w-full max-w-none" :style="{fontSize: store.chatFontSize.value}" v-html="content"></div>
 </template>
 
 <style scoped lang="scss">

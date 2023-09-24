@@ -159,8 +159,8 @@ watch(genText, newVal => {
 export function manualStop() {
   completedText.value = genText.value
   store.wsClosed.value = true
+  const userInput = store.msgRecord.value[store.msgRecord.value.length - 2].content
   nextTick(() => {
-    const userInput = store.msgRecord.value[store.msgRecord.value.length - 2].content
     store.msgRecord.value.splice(store.msgRecord.value.length - 1, 1, {
       role: 'assistant',
       content: genText.value,
@@ -170,7 +170,7 @@ export function manualStop() {
     })
   })
 
-  const cache = [{ role: 'user',  content: store.msgRecord.value[store.msgRecord.value.length - 2].content }, { role: 'assistant', content: genText.value, finished: true, manualStop: true, }]
+  const cache = [{ role: 'user',  content: store.msgRecord.value[store.msgRecord.value.length - 2].content }, { role: 'assistant', content: genText.value, finished: true, manualStop: true, isPPT: isPPT(userInput), }]
   if (store.isReanswer.value) {
     cache.splice(0, 1)
   }
