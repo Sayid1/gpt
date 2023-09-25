@@ -159,7 +159,7 @@ const downloads = (url, fileName) => {
 }
 function pptExport(i){
   if (checkChat()) return
-  var content= store.msgRecord.value[store.msgRecord.value.length-1].content;
+  var content= store.msgRecord.value[store.msgRecord.value.length-1].rawContent;
   console.log(content)
   var start = content.indexOf("\n\n```markdown");
   if(content.indexOf("#")!=0){
@@ -200,7 +200,7 @@ function pptExport(i){
   // if(ppt === 'iframe'){ 
     if(!sno){ 
       sno = 'MicLink'; 
-    } 
+    }
     var tdata = encodeURIComponent(content); 
     var tkey = new Date().getTime(); 
     localStorage.setItem(tkey,tdata)
@@ -489,8 +489,8 @@ function showModal() {
       </template>
       <template v-else>
         <div class="helper_welcome">
-          <div class="first">
-            <span style="color: rgb(76, 117, 246); font-size: 16px; font-weight: 600;">您已进入助手模式，当前选择的助手为：{{ helperObj[store.activeChatId.value].title }}</span>
+          <div class="first" :style="{'font-size': store.chatFontSize.value}">
+            <span style="color: rgb(76, 117, 246); font-weight: 600;">您已进入助手模式，当前选择的助手为：{{ helperObj[store.activeChatId.value].title }}</span>
             <br>{{ helperObj[store.activeChatId.value].desc }}<br>
           </div>
         </div>
@@ -550,7 +550,7 @@ function showModal() {
     border-radius: 8px;
     box-sizing: border-box;
     letter-spacing: .5px;
-    line-height: 24px;
+    // line-height: 24px;
     margin-bottom: 12px;
     overflow: hidden;
     padding: 20px 28px;

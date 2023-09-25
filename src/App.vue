@@ -162,7 +162,7 @@ function changeFontSize() {
     <div class="sidebar" :class="{'sidebar__collapse': sidebarCollapse }">
       <div v-show="!sidebarCollapse">
         <div class="logo items-center gap-x-3">
-          <img src="./assets/logo2.png" alt="">
+          <img src="./assets/logo.svg" alt="">
           <span class="text-white text-lg font-semibold">讯飞星火认知大模型</span>
         </div>
         <div class="actions-btn" v-show="!sidebarCollapse">
@@ -190,7 +190,7 @@ function changeFontSize() {
         </div>
       </div>
 
-      <div class="silder-content" v-show="!sidebarCollapse" :style="{height: store.userInfo.value?.id ? 'calc(100% - 310px)' : 'calc(100% - 246px)'}">
+      <div class="silder-content" v-show="!sidebarCollapse" :style="{height: store.userInfo.value?.id ? 'calc(100% - 310px)' : 'calc(100% - 276px)'}">
         <helper-list v-show="store.activeTab.value !== 'history-chat'" />
         <history-chat v-show="store.activeTab.value === 'history-chat'" />
       </div>
@@ -212,7 +212,7 @@ function changeFontSize() {
               <div class="mask" ref="mask"></div>
             </div>
         </div>
-        <p style="opacity:0.5;font-size: 12px;">对话区域默认字体大小为：14号</p>
+        <p style="opacity:0.5;font-size: 12px;">对话区域默认字体大小为：16号</p>
         </div>
       </div>
     </div>

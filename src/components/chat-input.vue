@@ -58,7 +58,7 @@ onMounted(() => {
 })
 
 function sendMsg() {
-  if (store.userInfo.value.id && store.userInfo.value.chatExpiredTime < store.userInfo.value.now) {
+  if (store.showMask.value && store.userInfo.value.id && store.userInfo.value.chatExpiredTime < store.userInfo.value.now) {
     showModal()
     return
   }

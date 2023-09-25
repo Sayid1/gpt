@@ -210,7 +210,7 @@ function ws(id, path, userInput, reanswer) {
       textresult += dd.payload.choices.text[0].content;
       for(var j=i; j<textresult.length; j++) {
         var delay = j * 50;
-        console.log(j, textresult, genText.value ,completedText.value)
+        // console.log(j, textresult, genText.value ,completedText.value)
         if (genText.value === '' || genText.value !== completedText.value) {
           timer.push(setTimeout(function () {
             i++
