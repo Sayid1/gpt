@@ -25,7 +25,7 @@ const store = useGlobalState()
     <chat-input v-if="store.showChat.value" />
 
     <div class="tip">
-      <p>所有内容均由『讯飞星火认知大模型』输出，其内容的准确性和完整性无法保证，不代表我们的态度或观点。</p>
+      <p>所有内容均由『讯飞星火认知大模型』输出</p>
     </div>
   </div>
 </template>

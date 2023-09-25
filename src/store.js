@@ -16,7 +16,7 @@ export const useGlobalState = createGlobalState(
     const manualStop = ref(false)
     const wsClosed = ref(false)
     //支付免费换 ，true 支付  false 免费
-    const showMask = ref(false)
+    const showMask = ref(true) 
 
     const showChat = ref(true)
     // 当前的对话消息记录

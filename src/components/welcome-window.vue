@@ -62,10 +62,10 @@ function renewal() {
 <template>
   <div>
     <div class="chat_content">
-      <img src="../assets/logo_m_1.png" class="user_image" alt="">
+      <img src="../assets/logo_m_1.svg" class="user_image" alt="">
       <div class="content_welcome_gpt" :style="{'font-size': store.chatFontSize.value}">
         <!-- <img src="../assets/welcome-right.png" alt=""> -->
-        <p class="hello">您好，我是讯飞星火认知大模型</p>
+        <p class="hello">您好，我是MicLink-Al</p>
         <p>能够学习和理解人类的语言，进行多轮对话</p>
         <p class="">回答问题，高效便捷地帮助人们获取信息、知识和灵感</p>
       </div>

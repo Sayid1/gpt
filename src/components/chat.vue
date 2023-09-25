@@ -202,7 +202,7 @@ function pptExport(i){
     var tdata = encodeURIComponent(content); 
     var tkey = new Date().getTime(); 
     localStorage.setItem(tkey,tdata)
-    const http = window.location.host
+    const http = window.location.origin
     const url = http + "/ppt.html?sno="+sno+"&markdown="+tkey;
     window.open(url,"_blank"); 
   // }else{ 
@@ -439,7 +439,7 @@ function showModal() {
   <div ref="chatElRef">
     <div class="chat_content">
       <img v-if="props.record.role === 'user'" src="../assets/avatar.png" class="user_image" alt="">
-      <img v-else src="../assets/logo_m_1.png" class="user_image">
+      <img v-else src="../assets/logo_m_1.svg" class="user_image">
       <div class="content_welcome_gpt mb-8" v-if="props.record.role === 'user'" v-html="props.record.content " :style="{'font-size': store.chatFontSize.value}">
        
       </div>

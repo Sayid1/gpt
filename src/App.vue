@@ -145,6 +145,18 @@ function closeFontModal() {
 function renewal() {
   router.push('/plans')
 }
+
+function clickFontSize(e) {
+  var event = event || window.event;
+  let barleft = event.offsetX
+  if (barleft >29) {
+    mask.value.style.width = barleft +'px' ;
+    bar.value.style.left = barleft + "px";
+    maskWidth.value = barleft + "px";
+    store.chatFontSize.value = (barleft / 2).toFixed(0) + "px"
+  }
+}
+
 function changeFontSize() {
   let barleft = 0;
   bar.value.onmousedown = function (event)  {
@@ -157,7 +169,7 @@ function changeFontSize() {
       barleft = 0;
       else if(barleft > scroll.value.offsetWidth - bar.value.offsetWidth)
       barleft = scroll.value.offsetWidth - bar.value.offsetWidth;
-      if (barleft >= 32) {
+      if (barleft >29) {
         mask.value.style.width = barleft +'px' ;
         bar.value.style.left = barleft + "px";
         maskWidth.value = barleft + "px";
@@ -178,7 +190,8 @@ function changeFontSize() {
     <div class="sidebar" :class="{'sidebar__collapse': sidebarCollapse }">
       <div v-show="!sidebarCollapse">
         <div class="logo items-center gap-x-3">
-          <img src="./assets/miclink.png" alt="">
+          <img src="./assets/miclink.svg" alt="" style="width:200px">
+          <!-- <img src="./assets/miclink_ai.svg" alt=""> -->
           <!-- <span class="text-white text-3xl font-semibold">MicLink-AI</span> -->
           <!-- <img src="./assets/logo.svg" alt=""> -->
           <!-- <span @click.stop="toPage('/contact-us')" class="cursor-pointer text-white">联系我们</span> -->
@@ -193,7 +206,8 @@ function changeFontSize() {
         </div>
         <div class="actions-btn" v-show="!sidebarCollapse">
           <div class="btn help-center" @click="changeToHelperCenterRoot">
-            <img src="./assets/spark-bot-logo.svg" alt="">&nbsp;助手中心
+            <!-- <img src="./assets/spark-bot-logo.svg" alt="">&nbsp; -->
+            助手中心
           </div>
           <div class="btn new-chat" @click="addChat">
             <span>+</span>&nbsp;新建对话
@@ -281,7 +295,7 @@ function changeFontSize() {
           <div class="flex flex-col gap-y-2 items-center">
             <div class="set-item-container grid  grid-cols-1 text-lg">
               <div>字体大小：</div>
-              <div class="scroll" ref="scroll">
+              <div class="scroll" ref="scroll" @click="clickFontSize">
                 <div class="bar" ref="bar" :style="{'left': maskWidth}"></div>
                 <div class="mask bg-blue-500" ref="mask" :style="{'width': maskWidth}"></div>
               </div>
