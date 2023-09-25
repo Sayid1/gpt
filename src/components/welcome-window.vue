@@ -74,7 +74,9 @@ function renewal() {
       <div class="welcome_prompt">
         <div class="flex flex-col gap-y-2  text-[#4257e9]" :style="{'font-size': store.chatFontSize.value}">
           <p class="text-gray-600">您可以在下方的输入框中输入您的问题，如：</p>
-          <p class="cursor-pointer hover:font-bold" @click="clickQuestion(q)" v-for="q in commonQuestions" :key="q">{{ q }}</p>
+          <p v-for="q in commonQuestions" :key="q">
+            <span class="cursor-pointer hover:font-bold" @click="clickQuestion(q)">{{ q }}</span>
+          </p>
         </div>
       </div>
     </div>

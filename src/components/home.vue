@@ -11,7 +11,7 @@ const store = useGlobalState()
 
 <template>
   <div class="chat_window">
-    <div class="out_wrap" :style="{height: store.showChat.value ? 'calc(100% - 200px)' : '100%'}">
+    <div class="out_wrap" :style="{height: store.showChat.value ? 'calc(100% - 200px)' : 'calc(100% - 30px)'}">
       <template v-if="store.showChat.value">
 
         <chat-continer v-if="store.msgRecord.value?.length" />
