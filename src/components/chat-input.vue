@@ -1,24 +1,35 @@
 <script setup>
 import { v4 } from 'uuid'
 import { useRouter } from 'vue-router'
-import { ref, watch, nextTick, onMounted } from 'vue'
+import { ref, watch, nextTick, onMounted, computed } from 'vue'
 import Modal from './modal.vue'
 import { useGlobalState } from '../store'
 import { useSendMsg, useChatCache, genChatId, manualStop, helperObj } from '../utils'
 
 const store = useGlobalState()
-const { set } = useChatCache()
+const { set, chat } = useChatCache()
 const showPrompt = ref(false)
 const textareaRef = ref(null)
 const isShowModal = ref(false)
 const router = useRouter()
 const helperKeys = Object.keys(helperObj)
+const inputPlaceholder = ref('在此输入您想了解的内容，输入“/”可获取模板，Shift+Enter换行')
 
 watch(store.content, newInput => {
   if (newInput === '/') {
     showPrompt.value = true
   } else {
     showPrompt.value = false
+  }
+})
+
+watch(store.activeChatId, newId => {
+  if (helperObj[newId]) {
+    const obj = helperObj[newId]
+    const text = obj.welcome || obj.desc
+    inputPlaceholder.value = text + "，Shift+Enter换行"
+  } else {
+    inputPlaceholder.value = "在此输入您想了解的内容，输入“/”可获取模板，Shift+Enter换行"
   }
 })
 
@@ -71,6 +82,8 @@ function sendMsg() {
   if (!id) id = genChatId()
   if (store.activeTab.value === 'history-chat') {
     // 缓存对话的标题 todo 如果是助手对话 不需要再缓存标题
+
+
     set(id, store.content.value)
   }
   // 请求对话
@@ -175,7 +188,7 @@ function backHome() {
             </div>
         </div>
     </div>
-    <textarea ref="textareaRef" @keydown.enter.prevent="handleEnterKey" v-model="store.content.value" maxlength="7000" placeholder="在此输入您想了解的内容，输入“/”可获取模板，Shift+Enter换行" style="height: 75px;"></textarea>
+    <textarea ref="textareaRef" @keydown.enter.prevent="handleEnterKey" v-model="store.content.value" maxlength="7000" :placeholder="inputPlaceholder" style="height: 75px;"></textarea>
     <div class="send" :class="{'!cursor-not-allowed': store.isGenerating.value}" @click="sendMsg">发送</div>
 </div>
 </template>

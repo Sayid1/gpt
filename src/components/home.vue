@@ -31,8 +31,8 @@ const store = useGlobalState()
 </template>
 <style scoped lang="scss">
 .tip {
-  color: #9197c1;
-  font-size: 12px;
+  color: #5798ff;
+  font-size: 14px;
   margin-top: 12px;
   text-align: center;
   width: 100%;

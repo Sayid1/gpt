@@ -6,7 +6,6 @@ import hljs from 'highlight.js';
 import markedKatex from "marked-katex-extension";
 import 'highlight.js/styles/dark.css';
 
-
 marked.use(markedKatex({ throwOnError: false }))
 const customRenderer = new marked.Renderer();
 customRenderer.code = (code, lang) => {
@@ -33,7 +32,20 @@ export function parseMarkdown(content) {
   return marked.parse(content)
 }
 export function genChatId() {
-  const id = +new Date() + ''
+  let id = ''
+  if (store.activeTab.value === 'history-chat') {
+    const keys = computed(() => Object.keys(chat.value).reverse().filter(key => !helperObj[key]))
+    const index = keys.value.findIndex(item => {
+      return !chat.value[item].chatRecords
+    })
+    if (index != -1 ) {
+      id = keys.value[index]
+    }  else {
+      id = +new Date() + ''
+    }
+  } else {
+    id = +new Date() + ''
+  }
   store.activeChatId.value = id
   return id
 }
@@ -113,20 +125,30 @@ export function useHelperCache() {
   return { helper, add, remove, init }
 }
 
-const { set, chat } = useChatCache()
+const { set, chat, remove } = useChatCache()
 const genText = ref('')
 const completedText = ref('')
 const isCompleted = computed(() => genText.value !== '' && genText.value === completedText.value)
 
 export function useSendMsg() {
-  const { isFetching, data, error, abort, statusCode, post } = useFetch(store.url, { immediate: false })
+  let url = store.url.value
+  if (store.userInfo.value&&store.userInfo.value.id) {
+    // url =  "http://8.129.170.108/api/xfws?token="+ store.userInfo.value.token
+    url = store.url.value + "?token="+ store.userInfo.value.token
+  }
+  const { isFetching, data, error, abort, statusCode, post } = useFetch(url, { immediate: false })
 
   function fetch(id, userInput, reanswer=false) {
     genText.value = ''
     completedText.value = ''
     store.isGenerating.value = true
     post().json().execute().then(() => {
-      ws(id, data.value.data, userInput, reanswer)
+      if (data.value.statusCode == 666) {
+        store.loginExpired.value = true
+        remove(id)
+      } else {
+        ws(id, data.value.data, userInput, reanswer)
+      }
     })
   }
   return { fetch, isFetching, abort, data }
@@ -222,7 +244,7 @@ function ws(id, path, userInput, reanswer) {
               timer.forEach(t => clearTimeout(t))
             } else {
 
-              console.log(text1)
+              // console.log(text1)
               // store.msgRecord.value.splice(store.msgRecord.value.length - 1, 1, {
               //   role: 'assistant',
               //   content: marked.parse(text1),
