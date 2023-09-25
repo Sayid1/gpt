@@ -13,12 +13,22 @@ const textareaRef = ref(null)
 const isShowModal = ref(false)
 const router = useRouter()
 const helperKeys = Object.keys(helperObj)
+const inputPlaceholder = ref('在此输入您想了解的内容，输入“/”可获取模板，Shift+Enter换行')
 
 watch(store.content, newInput => {
   if (newInput === '/') {
     showPrompt.value = true
   } else {
     showPrompt.value = false
+  }
+})
+
+watch(store.activeChatId, newId => {
+  if (helperObj[newId]) {
+    const obj = helperObj[newId]
+    inputPlaceholder.value = obj.welcome || obj.desc
+  } else {
+    inputPlaceholder.value = "在此输入您想了解的内容，输入“/”可获取模板，Shift+Enter换行"
   }
 })
 
@@ -177,7 +187,7 @@ function backHome() {
             </div>
         </div>
     </div>
-    <textarea ref="textareaRef" @keydown.enter.prevent="handleEnterKey" v-model="store.content.value" maxlength="7000" placeholder="在此输入您想了解的内容，输入“/”可获取模板，Shift+Enter换行" style="height: 75px;"></textarea>
+    <textarea ref="textareaRef" @keydown.enter.prevent="handleEnterKey" v-model="store.content.value" maxlength="7000" :placeholder="inputPlaceholder" style="height: 75px;"></textarea>
     <div class="send" :class="{'!cursor-not-allowed': store.isGenerating.value}" @click="sendMsg">发送</div>
 </div>
 </template>

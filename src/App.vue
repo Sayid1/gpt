@@ -204,6 +204,7 @@ function changeFontSize() {
           </div> -->
          
         </div>
+        <div class="text-white text-base font-semibold text-center">由讯飞星火认知大模型技术支持</div>
         <div class="actions-btn" v-show="!sidebarCollapse">
           <div class="btn help-center" @click="changeToHelperCenterRoot">
             <!-- <img src="./assets/spark-bot-logo.svg" alt="">&nbsp; -->
@@ -230,7 +231,7 @@ function changeFontSize() {
         </div>
       </div>
 
-      <div class="silder-content" v-show="!sidebarCollapse" :style="{height: store.userInfo.value?.id ? 'calc(100% - 310px)' : 'calc(100% - 276px)'}">
+      <div class="silder-content" v-show="!sidebarCollapse" :style="{height: store.userInfo.value?.id ? 'calc(100% - 340px)' : 'calc(100% - 276px)'}">
         <helper-list v-show="store.activeTab.value !== 'history-chat'" />
         <history-chat v-show="store.activeTab.value === 'history-chat'" />
       </div>
