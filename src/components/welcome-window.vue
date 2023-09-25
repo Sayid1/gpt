@@ -65,7 +65,7 @@ function renewal() {
       <img src="../assets/bot.png" class="user_image" alt="">
       <div class="content_welcome_gpt" :style="{'font-size': store.chatFontSize.value}">
         <!-- <img src="../assets/welcome-right.png" alt=""> -->
-        <p class="hello text-base">您好，我是讯飞星火认知大模型</p>
+        <p class="hello">您好，我是讯飞星火认知大模型</p>
         <p>能够学习和理解人类的语言，进行多轮对话</p>
         <p class="">回答问题，高效便捷地帮助人们获取信息、知识和灵感</p>
       </div>
