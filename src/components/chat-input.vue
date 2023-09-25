@@ -1,13 +1,13 @@
 <script setup>
 import { v4 } from 'uuid'
 import { useRouter } from 'vue-router'
-import { ref, watch, nextTick, onMounted } from 'vue'
+import { ref, watch, nextTick, onMounted, computed } from 'vue'
 import Modal from './modal.vue'
 import { useGlobalState } from '../store'
 import { useSendMsg, useChatCache, genChatId, manualStop, helperObj } from '../utils'
 
 const store = useGlobalState()
-const { set } = useChatCache()
+const { set, chat } = useChatCache()
 const showPrompt = ref(false)
 const textareaRef = ref(null)
 const isShowModal = ref(false)
@@ -58,7 +58,7 @@ onMounted(() => {
 })
 
 function sendMsg() {
-  if (store.showMask.value&&store.userInfo.value.id && store.userInfo.value.chatExpiredTime < store.userInfo.value.now) {
+  if (store.showMask.value && store.userInfo.value.id && store.userInfo.value.chatExpiredTime < store.userInfo.value.now) {
     showModal()
     return
   }
@@ -71,6 +71,8 @@ function sendMsg() {
   if (!id) id = genChatId()
   if (store.activeTab.value === 'history-chat') {
     // 缓存对话的标题 todo 如果是助手对话 不需要再缓存标题
+
+
     set(id, store.content.value)
   }
   // 请求对话

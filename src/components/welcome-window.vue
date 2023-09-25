@@ -21,7 +21,7 @@ const isShowModal = ref(false)
 const router = useRouter()
 
 function clickQuestion(q) {
-  if (store.showMask.value&&store.userInfo.value.id && store.userInfo.value.chatExpiredTime < store.userInfo.value.now) {
+  if (store.showMask.value && store.userInfo.value.id && store.userInfo.value.chatExpiredTime < store.userInfo.value.now) {
     showModal()
     return
   }
@@ -62,7 +62,7 @@ function renewal() {
 <template>
   <div>
     <div class="chat_content">
-      <img src="../assets/bot.png" class="user_image" alt="">
+      <img src="../assets/logo_m_1.png" class="user_image" alt="">
       <div class="content_welcome_gpt" :style="{'font-size': store.chatFontSize.value}">
         <!-- <img src="../assets/welcome-right.png" alt=""> -->
         <p class="hello">您好，我是讯飞星火认知大模型</p>
@@ -74,7 +74,9 @@ function renewal() {
       <div class="welcome_prompt">
         <div class="flex flex-col gap-y-2  text-[#4257e9]" :style="{'font-size': store.chatFontSize.value}">
           <p class="text-gray-600">您可以在下方的输入框中输入您的问题，如：</p>
-          <p class="cursor-pointer hover:font-bold" @click="clickQuestion(q)" v-for="q in commonQuestions" :key="q">{{ q }}</p>
+          <p v-for="q in commonQuestions" :key="q">
+            <span class="cursor-pointer hover:font-bold" @click="clickQuestion(q)">{{ q }}</span>
+          </p>
         </div>
       </div>
     </div>

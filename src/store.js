@@ -22,12 +22,15 @@ export const useGlobalState = createGlobalState(
     // 当前的对话消息记录
     const msgRecord = ref([])
 
+    // 登录过期
+    const loginExpired = ref(false)
+
     // 手动关闭ws连接
     const close = ref(() => {})//对话区域字号
     const chatFontSize = ref('inherit')
     // 侧边栏激活的tab
     const activeTab = ref('history-chat')
     const url = ref('http://att.miclink.net/api/xfws')
-    return { userInfo, content, msgRecord, activeChatId, isGenerating, close, showChat, activeTab, url, isReanswer, manualStop, wsClosed, showMask, chatFontSize }
+    return { userInfo, content, msgRecord, activeChatId, isGenerating, close, showChat, activeTab, url, isReanswer, manualStop, wsClosed, showMask, chatFontSize, loginExpired }
   }
 )

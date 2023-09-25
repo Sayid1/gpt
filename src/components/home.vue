@@ -11,7 +11,7 @@ const store = useGlobalState()
 
 <template>
   <div class="chat_window">
-    <div class="out_wrap" :style="{height: store.showChat.value ? 'calc(100% - 200px)' : '100%'}">
+    <div class="out_wrap" :style="{height: store.showChat.value ? 'calc(100% - 200px)' : 'calc(100% - 30px)'}">
       <template v-if="store.showChat.value">
 
         <chat-continer v-if="store.msgRecord.value?.length" />
@@ -25,14 +25,14 @@ const store = useGlobalState()
     <chat-input v-if="store.showChat.value" />
 
     <div class="tip">
-      <p>所有内容均由人工智能模型输出，其内容的准确性和完整性无法保证，不代表我们的态度或观点。</p>
+      <p>所有内容均由『讯飞星火认知大模型』输出，其内容的准确性和完整性无法保证，不代表我们的态度或观点。</p>
     </div>
   </div>
 </template>
 <style scoped lang="scss">
 .tip {
-  color: #9197c1;
-  font-size: 12px;
+  color: #5798ff;
+  font-size: 14px;
   margin-top: 12px;
   text-align: center;
   width: 100%;

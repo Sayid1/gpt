@@ -159,7 +159,7 @@ const downloads = (url, fileName) => {
 }
 function pptExport(i){
   if (checkChat()) return
-  var content= store.msgRecord.value[store.msgRecord.value.length-1].content;
+  var content= store.msgRecord.value[store.msgRecord.value.length-1].rawContent;
   console.log(content)
   var start = content.indexOf("\n\n```markdown");
   if(content.indexOf("#")!=0){
@@ -195,12 +195,10 @@ function pptExport(i){
   const urlParams = new URLSearchParams(window.location.search)
   // const ppt = urlParams.get('ppt')
   let sno = urlParams.get('sno')
-  // const url =	"https://mindshow.fun/#/home?channel=miclink&markdown="+encodeURIComponent(content);
-  // window.open(url,"_blank");		
   // if(ppt === 'iframe'){ 
     if(!sno){ 
       sno = 'MicLink'; 
-    } 
+    }
     var tdata = encodeURIComponent(content); 
     var tkey = new Date().getTime(); 
     localStorage.setItem(tkey,tdata)
@@ -212,6 +210,21 @@ function pptExport(i){
   //   window.open(url,"_blank");  
   // }
 }
+
+function lastSearch(text,regexp,length=0) {
+  if(!(regexp instanceof RegExp)) regexp = new RegExp(regexp);
+  let e = -1;
+  let i=text.length-length-1;
+  for(; i>=0; i--){
+      let l = text.substring(i,length>0?i+length:text.length);
+      if(l.search(regexp)==0) {
+          e=i;
+          break;
+      }
+  }
+  return e;
+}
+
 
 function table2json(table) {
   const labelData = [];
@@ -426,7 +439,7 @@ function showModal() {
   <div ref="chatElRef">
     <div class="chat_content">
       <img v-if="props.record.role === 'user'" src="../assets/avatar.png" class="user_image" alt="">
-      <img v-else src="../assets/bot.png" class="user_image" alt="">
+      <img v-else src="../assets/logo_m_1.png" class="user_image">
       <div class="content_welcome_gpt mb-8" v-if="props.record.role === 'user'" v-html="props.record.content " :style="{'font-size': store.chatFontSize.value}">
        
       </div>
