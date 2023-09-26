@@ -48,7 +48,7 @@ function clickHelperItem(id) {
         </div>
       </div>
     </div>
-    <div class="card_wrapper gap-x-10">
+    <div class="card_wrapper gap-x-8 overflow-y-scroll hidden-scroll-bar" style="height:calc(100% - 70px)">
       <div class="card_item" :class="{added: addedHelper.includes(helper.id)}" @click="clickHelperItem(helper.id)" v-for="helper in filterHelper" :key="helper.id">
         <div class="name_wrap " :style="{color: helper.badgeBg}">
           <span role="img" class="anticon" style="pointer-events: none;">

@@ -1,6 +1,6 @@
 <script setup async>
 import { computed, ref, onMounted,onUnmounted, onBeforeUnmount } from 'vue'
-import { useGlobalState } from './store'
+import { useGlobalState, } from './store'
 import { useClipboard, useFetch } from '@vueuse/core'
 import { useRouter, useRoute } from 'vue-router'
 import historyChat from './components/history-chat.vue'
@@ -11,7 +11,7 @@ import Modal from './components/modal.vue'
 import message from './components/message/message.js'
 import dayjs from 'dayjs'
 
-import { genChatId, useChatCache, helperObj } from './utils'
+import { genChatId, useChatCache, helperObj, reset } from './utils'
 
 const { copy } = useClipboard()
 
@@ -104,10 +104,9 @@ onMounted(() => {
   showMask.value = store.showMask.value
   const urlParams = new URLSearchParams(window.location.search)
   let sno = urlParams.get('sno')
-  if (sno) {
+  if (sno&&store.showMask.value) {
     store.showMask.value = false
     showMask.value = false
-    console.log(showMask.value)
     loopUser(sno)
   }
   
@@ -134,6 +133,7 @@ function showModal() {
   isShowModal.value = true
 }
 function showFontModal() {
+  if (checkChat()) return
   isFontShow.value = true
   setTimeout(() => {
     changeFontSize()
@@ -145,6 +145,10 @@ function closeFontModal() {
 function renewal() {
   router.push('/plans')
 }
+function clearStorage() {
+  reset()
+  router.push('./')
+}
 
 function clickFontSize(e) {
   var event = event || window.event;
@@ -153,7 +157,7 @@ function clickFontSize(e) {
     mask.value.style.width = barleft +'px' ;
     bar.value.style.left = barleft + "px";
     maskWidth.value = barleft + "px";
-    store.chatFontSize.value = (barleft / 2).toFixed(0) + "px"
+    store.chatFontSize.value = (barleft / 2).toFixed(0)
   }
 }
 
@@ -173,7 +177,7 @@ function changeFontSize() {
         mask.value.style.width = barleft +'px' ;
         bar.value.style.left = barleft + "px";
         maskWidth.value = barleft + "px";
-        store.chatFontSize.value = (barleft / 2).toFixed(0) + "px"
+        store.chatFontSize.value = (barleft / 2).toFixed(0)
       }
       //防止选择内容--当拖动鼠标过快时候，弹起鼠标，bar也会移动，修复bug
       window.getSelection ? window.getSelection().removeAllRanges() : document.selection.empty();
@@ -226,8 +230,9 @@ function changeFontSize() {
         <div class="box !mb-5" @click="addChat">
           <img src="./assets/add.svg" alt="">
         </div>
-        <div class="box" @click="changeToHelperCenterRoot">
-          <img src="./assets/bot.svg" alt="">
+        <div class="box text-[#ffffff]" @click="changeToHelperCenterRoot" style="font-size:12px">
+          助手
+          <!-- <img src="./assets/bot.svg" alt=""> -->
         </div>
       </div>
 
@@ -301,11 +306,14 @@ function changeFontSize() {
                 <div class="mask bg-blue-500" ref="mask" :style="{'width': maskWidth}"></div>
               </div>
             </div>
-            <p class="text-sm">对话区域字体大小为：{{store.chatFontSize.value == 'inherit' ? '16px' : store.chatFontSize.value}}</p>
+            <p class="text-sm">对话区域字体大小为：{{store.chatFontSize.value}}号</p>
           </div>
           <div class="flex justify-center gap-x-4 mt-4">
             <button @click="closeFontModal" type="button" class="text-white bg-blue-500 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
               关闭
+            </button>
+            <button @click.stop="clearStorage" type="button" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600">
+              清除缓存
             </button>
           </div>
         </div>

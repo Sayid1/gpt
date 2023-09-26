@@ -7,7 +7,7 @@ import { useGlobalState } from '../store'
 import { useSendMsg, useChatCache, genChatId, manualStop, helperObj } from '../utils'
 
 const store = useGlobalState()
-const { set, chat } = useChatCache()
+const { set, chat, remove } = useChatCache()
 const showPrompt = ref(false)
 const textareaRef = ref(null)
 const isShowModal = ref(false)
@@ -43,6 +43,7 @@ const promptList = [
 ]
 // const emit = defineEmits(['enter'])
 
+// const { fetch, isFetching, abort, data } = useSendMsg()
 
 function handleEnterKey(event) {
   if (event.shiftKey && event.keyCode === 13) {
@@ -115,6 +116,19 @@ function stop() {
   store.close.value(1000, 'manual close')
 }
 
+function reset() {
+  console.log(store.msgRecord.value)
+  const id = store.activeChatId.value
+  const msglength = store.msgRecord.value.length
+  if (!helperObj[store.activeChatId.value]) {
+    store.msgRecord.value = []
+    remove(id,msglength)
+  } else {
+    store.msgRecord.value =[{role: 'welcome_bot',}]
+    remove(id,msglength+1)
+  }
+}
+
 function closeModal() {
   isShowModal.value = false
 }
@@ -176,6 +190,15 @@ function backHome() {
         </svg>
       </span>
       停止输出
+    </div>
+    <div
+      v-if="!store.isGenerating.value&&store.msgRecord.value.length"
+      class=" mb-6 cursor-pointer mt-0.5 bg-[rgb(255_255_255_/_37%)] hover:bg-[rgb(255_255_255_/_57%)] hover:text-gray-900 text-gray-600 flex justify-center gap-x-1 items-center w-20 py-1 rounded-md text-sm"
+      @click="reset">
+      <span>
+        <svg t="1695716454625" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="6889" width="16" height="16"><path d="M885.58 554.65c-22.86 0-41.39-18.53-41.39-41.39V182.17c0-22.86 18.53-41.39 41.39-41.39s41.39 18.53 41.39 41.39v331.09c-0.01 22.86-18.54 41.39-41.39 41.39zM140.62 885.74c-22.86 0-41.39-18.53-41.39-41.39V513.26c0-22.86 18.53-41.39 41.39-41.39s41.39 18.53 41.39 41.39v331.09c0 22.86-18.53 41.39-41.39 41.39z" p-id="6890" fill="#707070"></path><path d="M513.1 927.12c-228.21 0-413.86-185.65-413.86-413.86 0-22.86 18.53-41.39 41.39-41.39s41.39 18.53 41.39 41.39c0 182.56 148.53 331.09 331.09 331.09 86.23 0 167.89-32.98 229.93-92.86 16.45-15.82 42.66-15.42 58.52 1.05 15.86 16.45 15.4 42.64-1.05 58.52-77.57 74.84-179.64 116.06-287.41 116.06zM885.6 554.65c-22.86 0-41.39-18.53-41.39-41.39 0-182.56-148.53-331.09-331.09-331.09-90.65 0-175.27 35.93-238.25 101.16-15.82 16.51-42.07 16.95-58.5 1.03-16.45-15.86-16.91-42.07-1.03-58.5C294.04 144.3 399.81 99.4 513.12 99.4c228.21 0 413.86 185.65 413.86 413.86 0 22.86-18.53 41.39-41.38 41.39z" p-id="6891" fill="#707070"></path></svg>
+      </span>
+      重置
     </div>
   </div>
   <div class="ask-window">

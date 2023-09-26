@@ -93,15 +93,17 @@ export function useChatCache() {
       delete chat.value[id]
     }
   }
+
   function del() {
     chat.value = {}
   }
+
   function update(id, title) {
     chat.value[id].title = title
+    console.log( chat.value[id], title)
   }
   return { chat, set, update, remove, del }
 }
-
 const isInitHelper = useStorage('helper-init', false, localStorage)
 export function useHelperCache() {
   const helper = useStorage('helper-list', [], localStorage)
@@ -116,7 +118,6 @@ export function useHelperCache() {
   }
   function init() {
     const { set } = useChatCache()
-    console.log(isInitHelper.value)
     if (isInitHelper.value) return
     helperList.forEach((helper, i) => {
       if (i < 9) {
@@ -154,8 +155,7 @@ const isCompleted = computed(() => genText.value !== '' && genText.value === com
 
 export function useSendMsg() {
   let url = store.url1.value
-  console.log(url)
-  const { isFetching, data, error, abort, statusCode, post } = useFetch(url, { immediate: false })
+  const { isFetching, data, error, abort, statusCode, post } = useFetch(url, { immediate: false})
 
   function fetch(id, userInput, reanswer=false) {
     genText.value = ''
@@ -231,11 +231,12 @@ function ws(id, path, userInput, reanswer) {
   const chatRecords = chat.value[id].chatRecords
   let text = []
   let paramUserInput = userInput
-  if (isPPT(userInput)) {
-    if (paramUserInput.toLowerCase().indexOf('markdown') === -1) {
-      paramUserInput += ",请使用MarkDown格式输出内容"
-    }
-  } else if (isTable(userInput)) {
+  if (isPPT(userInput) || store.activeChatId.value === 'kroow5t8nyx3_v1') {
+    // if (paramUserInput.toLowerCase().indexOf('markdown') === -1) {
+    //   paramUserInput += ",请使用MarkDown格式输出内容"
+    // }
+    paramUserInput = "你是一名PPT撰写专家，擅长帮助别人撰写一份完整演示文档，并且通过markdown的代码来提供，第一行必需是#，第二行是##，不需要输出目录,不使用列表项的-符号。这次别人的要求是"+paramUserInput
+  } else if (isTable(userInput)&&!helperObj[store.activeChatId.value]) {
     paramUserInput += ",请使用Markdown的表格格式输出内容"
   }
   if (chatRecords) {
@@ -298,6 +299,7 @@ function ws(id, path, userInput, reanswer) {
         "parameter": { "chat": { "domain": "generalv2", "max_tokens":4096 } },
         "payload": { "message": { "text": text} }
       }
+      console.log(text)
       send(JSON.stringify(params))
     }
   })
