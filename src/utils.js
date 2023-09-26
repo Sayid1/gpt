@@ -2,6 +2,7 @@ import { useStorage, useFetch, useWebSocket } from '@vueuse/core'
 import { ref, watch, computed, watchEffect, nextTick } from 'vue'
 import { useGlobalState } from './store'
 import { marked } from 'marked';
+import { useRouter } from 'vue-router'
 import hljs from 'highlight.js';
 import markedKatex from "marked-katex-extension";
 import 'highlight.js/styles/dark.css';
@@ -92,13 +93,15 @@ export function useChatCache() {
       delete chat.value[id]
     }
   }
-
+  function del() {
+    chat.value = {}
+  }
   function update(id, title) {
     chat.value[id].title = title
-    console.log( chat.value[id], title)
   }
-  return { chat, set, update, remove }
+  return { chat, set, update, remove, del }
 }
+
 const isInitHelper = useStorage('helper-init', false, localStorage)
 export function useHelperCache() {
   const helper = useStorage('helper-list', [], localStorage)
@@ -113,6 +116,7 @@ export function useHelperCache() {
   }
   function init() {
     const { set } = useChatCache()
+    console.log(isInitHelper.value)
     if (isInitHelper.value) return
     helperList.forEach((helper, i) => {
       if (i < 9) {
@@ -122,7 +126,25 @@ export function useHelperCache() {
     })
     isInitHelper.value = true
   }
-  return { helper, add, remove, init }
+  function del() {
+    helper.value = []
+  }
+  return { helper, add, remove, init, del }
+}
+
+export function reset() {
+  const { del: delChat } = useChatCache()
+  const { init: initHelper, del: delHelper } = useHelperCache()
+  isInitHelper.value = false
+  delChat()
+  delHelper()
+  setTimeout(() => {
+    initHelper()
+  }, 0);
+  store.msgRecord.value = []
+  store.showChat.value = true
+  store.activeChatId.value = null
+  store.activeTab.value = 'history-chat'
 }
 
 const { set, chat, remove } = useChatCache()
@@ -131,7 +153,9 @@ const completedText = ref('')
 const isCompleted = computed(() => genText.value !== '' && genText.value === completedText.value)
 
 export function useSendMsg() {
-  const { isFetching, data, error, abort, statusCode, post } = useFetch(store.url1.value, { immediate: false })
+  let url = store.url1.value
+  console.log(url)
+  const { isFetching, data, error, abort, statusCode, post } = useFetch(url, { immediate: false })
 
   function fetch(id, userInput, reanswer=false) {
     genText.value = ''

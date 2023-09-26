@@ -43,7 +43,6 @@ const promptList = [
 ]
 // const emit = defineEmits(['enter'])
 
-const { fetch, isFetching, abort, data } = useSendMsg()
 
 function handleEnterKey(event) {
   if (event.shiftKey && event.keyCode === 13) {
@@ -69,6 +68,7 @@ onMounted(() => {
 })
 
 function sendMsg() {
+  const { fetch, isFetching, abort, data } = useSendMsg()
   if (store.showMask.value && store.userInfo.value.id && store.userInfo.value.chatExpiredTime < store.userInfo.value.now) {
     showModal()
     return
