@@ -131,12 +131,7 @@ const completedText = ref('')
 const isCompleted = computed(() => genText.value !== '' && genText.value === completedText.value)
 
 export function useSendMsg() {
-  let url = store.url.value
-  if (store.userInfo.value&&store.userInfo.value.id) {
-    // url =  "http://8.129.170.108/api/xfws?token="+ store.userInfo.value.token
-    url = store.url.value + "?token="+ store.userInfo.value.token
-  }
-  const { isFetching, data, error, abort, statusCode, post } = useFetch(url, { immediate: false })
+  const { isFetching, data, error, abort, statusCode, post } = useFetch(store.url1.value, { immediate: false })
 
   function fetch(id, userInput, reanswer=false) {
     genText.value = ''

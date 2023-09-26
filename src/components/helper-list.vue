@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useHelperCache, useChatCache, helperObj, parseMarkdown } from '../utils'
+import { useHelperCache, useChatCache, helperObj, useSendMsg } from '../utils'
 import { useGlobalState } from '../store'
 import Modal from './modal.vue'
 import message from './message/message.js'
@@ -45,6 +45,7 @@ function clickHelper(id) {
   router.push('/')
   store.url.value = 'http://att.miclink.net/api/xfws?assistantId=' + id
   store.showChat.value = true
+  useSendMsg() // 不知道为啥，反正要调用一下才会更新url
   store.activeChatId.value = id
   set(id, helperObj[id].title)
 
