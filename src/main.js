@@ -18,11 +18,7 @@ import ContactUs from './components/contact-us.vue'
 const store = useGlobalState()
 const urlParams = new URLSearchParams(window.location.search)
 let sno = urlParams.get('sno')
-const ppt = urlParams.get('ppt')
-if (ppt) {
-  localStorage.setItem('ppt', ppt)
-}
-if (sno){
+if (sno&&store.showMask.value){
   sno = 'CHAT_'+ sno
   localStorage.setItem('sno', sno)
   // CHATGPT00009999

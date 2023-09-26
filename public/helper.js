@@ -62,6 +62,7 @@ var helperObj = {
         "welcome": '写出你的课程名称，帮你设计大概念教学计划',
         "badge": '课',
         "badgeBg": 'rgb(46, 113, 160)',
+        "example":["将进酒","二元一次方程","素养与情操——美术鉴赏的意义"]
     },
     "g5wrtd2jx1s1_v1": {
         "id": "g5wrtd2jx1s1_v1",

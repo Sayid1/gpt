@@ -31,7 +31,7 @@ const props = defineProps({
 })
 const store = useGlobalState()
 const { remove } = useChatCache()
-const { fetch } = useSendMsg()
+// const { fetch } = useSendMsg()
 const chatElRef = ref(null)
 const showExcel = ref(false)
 const showPPT = ref(false)
@@ -97,24 +97,24 @@ function copyToClipboard(content) {
   message('复制成功')
 }
 
-function reanswer() {
-  store.isReanswer.value = true
-  store.manualStop.value = false
-  store.msgRecord.value.splice(store.msgRecord.value.length - 1, 1)
-  const id = store.activeChatId.value
-  remove(id, 1)
+// function reanswer() {
+//   store.isReanswer.value = true
+//   store.manualStop.value = false
+//   store.msgRecord.value.splice(store.msgRecord.value.length - 1, 1)
+//   const id = store.activeChatId.value
+//   remove(id, 1)
 
-  const userMsg = store.msgRecord.value[store.msgRecord.value.length - 1].content
-  // 请求对话
-  fetch(id, userMsg, true)
+//   const userMsg = store.msgRecord.value[store.msgRecord.value.length - 1].content
+//   // 请求对话
+//   fetch(id, userMsg, true)
 
-  // 设置当前的对话消息记录
-  store.msgRecord.value.push({
-    role: 'assistant',
-    content: '',
-    status: 'loading',
-  })
-}
+//   // 设置当前的对话消息记录
+//   store.msgRecord.value.push({
+//     role: 'assistant',
+//     content: '',
+//     status: 'loading',
+//   })
+// }
 
 function exportExcel() {
   if (checkChat()) return
@@ -433,6 +433,10 @@ function closeModal() {
 function showModal() {
   isShowModal.value = true
 }
+
+function clickTip(tip) {
+  store.content.value = tip
+}
 </script>
 
 <template>
@@ -440,7 +444,7 @@ function showModal() {
     <div class="chat_content">
       <img v-if="props.record.role === 'user'" src="../assets/avatar.png" class="user_image" alt="">
       <img v-else src="../assets/logo_m_1.svg" class="user_image">
-      <div class="content_welcome_gpt mb-8" v-if="props.record.role === 'user'" v-html="props.record.content " :style="{'font-size': store.chatFontSize.value}">
+      <div class="content_welcome_gpt mb-8" v-if="props.record.role === 'user'" v-html="props.record.content " :style="{'font-size': store.chatFontSize.value + 'px'}">
        
       </div>
       <template v-else-if="props.record.role === 'assistant'">
@@ -501,10 +505,36 @@ function showModal() {
         </div>
       </template>
       <template v-else>
-        <div class="helper_welcome">
-          <div class="first" :style="{'font-size': store.chatFontSize.value}">
+        <div class="helper_welcome pb-4">
+          <div class="first" :style="{'font-size': store.chatFontSize.value + 'px'}">
             <span style="color: rgb(76, 117, 246); font-weight: 600;">您已进入助手模式，当前选择的助手为：{{ helperObj[store.activeChatId.value].title }}</span>
-            <br>{{ helperObj[store.activeChatId.value].desc }}<br>
+            <br>{{ helperObj[store.activeChatId.value].desc }}
+            <br>{{ helperObj[store.activeChatId.value].welcome }}
+          </div>
+          <div class="bg-white rounded-md p-4 mb-4" v-if="helperObj[store.activeChatId.value].example">
+            <div class="text-gray-400 font-medium " :style="{'font-size': (store.chatFontSize.value - 2) + 'px'}">您可以尝试输入：</div>
+            <div class="flex flex-wrap gap-x-4">
+              <div
+                v-for="tip in helperObj[store.activeChatId.value].example"
+                :key="tip"
+                class="mt-2 flex gap-x-1 items-center px-3 py-2 bg-slate-100 text-gray-500 rounded-md cursor-pointer text-[#9295bf] hover:text-[#4c75f6]"
+                :style="{'font-size': (store.chatFontSize.value -3) + 'px'}"
+                @click="clickTip(tip)"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" :width="(store.chatFontSize.value -3) + 'px'" :height="(store.chatFontSize.value -3) + 'px'" viewBox="0 0 13 13" version="1.1" class="injected-svg" data-src="/static/media/edit-line.cce83d66fd34d2b49dbf3fb21f717d5b.svg" role="img">
+                  <title>edit备份</title>
+                  <desc>Created with Sketch.</desc>
+                  <g id="页面-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                    <g id="新建助手3" transform="translate(-745.000000, -413.000000)" fill="currentColor" fill-rule="nonzero">
+                      <g id="edit备份" transform="translate(744.500000, 412.498571)">
+                        <path d="M3.0265625,10.75 C3.0578125,10.75 3.0890625,10.746875 3.1203125,10.7421875 L5.7484375,10.28125 C5.7796875,10.275 5.809375,10.2609375 5.83125,10.2375 L12.4546875,3.6140625 C12.515625,3.553125 12.515625,3.4546875 12.4546875,3.39375 L9.8578125,0.7953125 C9.828125,0.765625 9.7890625,0.75 9.746875,0.75 C9.7046875,0.75 9.665625,0.765625 9.6359375,0.7953125 L3.0125,7.41875 C2.9890625,7.4421875 2.975,7.4703125 2.96875,7.5015625 L2.5078125,10.1296875 C2.478125,10.303125 2.53125,10.471875 2.6546875,10.5953125 C2.7578125,10.6953125 2.8875,10.75 3.0265625,10.75 L3.0265625,10.75 Z M4.0796875,8.025 L9.746875,2.359375 L10.8921875,3.5046875 L5.225,9.1703125 L3.8359375,9.415625 L4.0796875,8.025 L4.0796875,8.025 Z M12.75,12.0625 L1.25,12.0625 C0.9734375,12.0625 0.75,12.2859375 0.75,12.5625 L0.75,13.125 C0.75,13.19375 0.80625,13.25 0.875,13.25 L13.125,13.25 C13.19375,13.25 13.25,13.19375 13.25,13.125 L13.25,12.5625 C13.25,12.2859375 13.0265625,12.0625 12.75,12.0625 Z" id="形状-16"></path>
+                      </g>
+                    </g>
+                  </g>
+                </svg>
+                <span>{{ tip }}</span>
+              </div>
+            </div>
           </div>
         </div>
       </template>

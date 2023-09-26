@@ -40,7 +40,7 @@ defineProps({
 
 <template>
   
- <div className="prose w-full max-w-none" :style="{fontSize: store.chatFontSize.value}" v-html="content"></div>
+ <div className="prose w-full max-w-none" :style="{fontSize: store.chatFontSize.value + 'px'}" v-html="content"></div>
 </template>
 
 <style scoped lang="scss">

@@ -1,5 +1,5 @@
 <script setup>
-import { nextTick, ref } from 'vue'
+import { nextTick, ref, defineModel, computed } from 'vue'
 import { useGlobalState } from '../store'
 import { useHelperCache, useChatCache, helperList, helperObj } from '../utils'
 // import Modal from './modal.vue'
@@ -7,16 +7,11 @@ import message from './message/message.js'
 
 // const isShowModal = ref(false)
 const store = useGlobalState()
+const serachText = ref('')
 const { chat, set } = useChatCache()
 const { add, helper: addedHelper } = useHelperCache()
 
-// function closeModal() {
-//   isShowModal.value = false
-// }
-// function showModal() {
-//   isShowModal.value = true
-// }
-
+const filterHelper = computed(() => helperList.filter(help => help.title.includes(serachText.value)))
 function clickHelperItem(id) {
   if (!addedHelper.value.includes(id)) {
     message('添加成功！')
@@ -42,11 +37,19 @@ function clickHelperItem(id) {
 
 <template>
   <div class="bot_welcome_panel">
-    <div class="title">
-      助手中心<span>场景任务一键搞定，打造高效的生产力工具！</span>
+    <div class="title flex justify-between">
+      <div class="t1">助手中心<span>场景任务一键搞定，打造高效的生产力工具！</span></div>
+      <div class="relative w-[300px] transform px-4 transition-all opacity-100 scale-100">
+        <div class="overflow-hidden rounded-lg bg-white">
+          <div class="relative">
+            <input v-model="serachText" class="block w-full appearance-none bg-transparent py-2.5 pl-4 pr-12 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none sm:text-sm" placeholder="请输入你要查找的助手" type="text" aria-expanded="false" aria-autocomplete="list" style="caret-color: rgb(107, 114, 128);" tabindex="0">
+            <svg class="cursor-pointer transition-all absolute right-4 top-2.5 h-6 w-6 fill-slate-400" xmlns="http://www.w3.org/2000/svg"><path d="M20.47 21.53a.75.75 0 1 0 1.06-1.06l-1.06 1.06Zm-9.97-4.28a6.75 6.75 0 0 1-6.75-6.75h-1.5a8.25 8.25 0 0 0 8.25 8.25v-1.5ZM3.75 10.5a6.75 6.75 0 0 1 6.75-6.75v-1.5a8.25 8.25 0 0 0-8.25 8.25h1.5Zm6.75-6.75a6.75 6.75 0 0 1 6.75 6.75h1.5a8.25 8.25 0 0 0-8.25-8.25v1.5Zm11.03 16.72-5.196-5.197-1.061 1.06 5.197 5.197 1.06-1.06Zm-4.28-9.97c0 1.864-.755 3.55-1.977 4.773l1.06 1.06A8.226 8.226 0 0 0 18.75 10.5h-1.5Zm-1.977 4.773A6.727 6.727 0 0 1 10.5 17.25v1.5a8.226 8.226 0 0 0 5.834-2.416l-1.061-1.061Z"></path></svg>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="card_wrapper gap-x-10">
-      <div class="card_item" :class="{added: addedHelper.includes(helper.id)}" @click="clickHelperItem(helper.id)" v-for="helper in helperList" :key="helper.id">
+    <div class="card_wrapper gap-x-8 overflow-y-scroll hidden-scroll-bar" style="height:calc(100% - 70px)">
+      <div class="card_item" :class="{added: addedHelper.includes(helper.id)}" @click="clickHelperItem(helper.id)" v-for="helper in filterHelper" :key="helper.id">
         <div class="name_wrap " :style="{color: helper.badgeBg}">
           <span role="img" class="anticon" style="pointer-events: none;">
             <svg version="1.1" width="38px" height="41px" viewBox="0 0 42.0 41.0">
@@ -116,16 +119,18 @@ function clickHelperItem(id) {
   position: relative;
   width: 100%;
   .title {
-    align-items: center;
-    color: #4c75f6;
-    display: flex;
-    font-size: 24px;
-    font-weight: 600;
-    span {
-      color: #9295bf;
-      font-size: 14px;
-      font-weight: 400;
-      padding-left: 20px;
+    .t1 {
+      align-items: center;
+      color: #4c75f6;
+      display: flex;
+      font-size: 24px;
+      font-weight: 600;
+      span {
+        color: #9295bf;
+        font-size: 14px;
+        font-weight: 400;
+        padding-left: 20px;
+      }
     }
   }
   .card_wrapper {

@@ -2,6 +2,7 @@ import { useStorage, useFetch, useWebSocket } from '@vueuse/core'
 import { ref, watch, computed, watchEffect, nextTick } from 'vue'
 import { useGlobalState } from './store'
 import { marked } from 'marked';
+import { useRouter } from 'vue-router'
 import hljs from 'highlight.js';
 import markedKatex from "marked-katex-extension";
 import 'highlight.js/styles/dark.css';
@@ -93,11 +94,15 @@ export function useChatCache() {
     }
   }
 
+  function del() {
+    chat.value = {}
+  }
+
   function update(id, title) {
     chat.value[id].title = title
     console.log( chat.value[id], title)
   }
-  return { chat, set, update, remove }
+  return { chat, set, update, remove, del }
 }
 const isInitHelper = useStorage('helper-init', false, localStorage)
 export function useHelperCache() {
@@ -122,7 +127,25 @@ export function useHelperCache() {
     })
     isInitHelper.value = true
   }
-  return { helper, add, remove, init }
+  function del() {
+    helper.value = []
+  }
+  return { helper, add, remove, init, del }
+}
+
+export function reset() {
+  const { del: delChat } = useChatCache()
+  const { init: initHelper, del: delHelper } = useHelperCache()
+  isInitHelper.value = false
+  delChat()
+  delHelper()
+  setTimeout(() => {
+    initHelper()
+  }, 0);
+  store.msgRecord.value = []
+  store.showChat.value = true
+  store.activeChatId.value = null
+  store.activeTab.value = 'history-chat'
 }
 
 const { set, chat, remove } = useChatCache()
@@ -131,29 +154,21 @@ const completedText = ref('')
 const isCompleted = computed(() => genText.value !== '' && genText.value === completedText.value)
 
 export function useSendMsg() {
-  let url = store.url.value
-  if (store.userInfo.value&&store.userInfo.value.id) {
-    // url =  "http://8.129.170.108/api/xfws?token="+ store.userInfo.value.token
-    url = store.url.value + "?token="+ store.userInfo.value.token
-  }
-  const { isFetching, data, error, abort, statusCode, post } = useFetch(url, { immediate: false })
+  let url = store.url1.value
+  const { isFetching, data, error, abort, statusCode, post } = useFetch(url, { immediate: false})
 
   function fetch(id, userInput, reanswer=false) {
-    return new Promise(resolve => {
-      genText.value = ''
-      completedText.value = ''
-      store.isGenerating.value = true
-      post().json().execute().then(() => {
-        if (data.value.statusCode == 666) {
-          store.loginExpired.value = true
-          remove(id)
-        } else {
-          ws(id, data.value.data, userInput, reanswer)
-        }
-        resolve()
-      })
+    genText.value = ''
+    completedText.value = ''
+    store.isGenerating.value = true
+    post().json().execute().then(() => {
+      if (data.value.statusCode == 666) {
+        store.loginExpired.value = true
+        remove(id)
+      } else {
+        ws(id, data.value.data, userInput, reanswer)
+      }
     })
-    
   }
   return { fetch, isFetching, abort, data }
 }
@@ -216,11 +231,12 @@ function ws(id, path, userInput, reanswer) {
   const chatRecords = chat.value[id].chatRecords
   let text = []
   let paramUserInput = userInput
-  if (isPPT(userInput)) {
-    if (paramUserInput.toLowerCase().indexOf('markdown') === -1) {
-      paramUserInput += ",请使用MarkDown格式输出内容"
-    }
-  } else if (isTable(userInput)) {
+  if (isPPT(userInput) || store.activeChatId.value === 'kroow5t8nyx3_v1') {
+    // if (paramUserInput.toLowerCase().indexOf('markdown') === -1) {
+    //   paramUserInput += ",请使用MarkDown格式输出内容"
+    // }
+    paramUserInput = "你是一名PPT撰写专家，擅长帮助别人撰写一份完整演示文档，并且通过markdown的代码来提供，第一行必需是#，第二行是##，不需要输出目录,不使用列表项的-符号。这次别人的要求是"+paramUserInput
+  } else if (isTable(userInput)&&!helperObj[store.activeChatId.value]) {
     paramUserInput += ",请使用Markdown的表格格式输出内容"
   }
   if (chatRecords) {
@@ -283,6 +299,7 @@ function ws(id, path, userInput, reanswer) {
         "parameter": { "chat": { "domain": "generalv2", "max_tokens":4096 } },
         "payload": { "message": { "text": text} }
       }
+      console.log(text)
       send(JSON.stringify(params))
     }
   })

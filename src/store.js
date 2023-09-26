@@ -1,4 +1,4 @@
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed, watch } from 'vue'
 import { createGlobalState } from '@vueuse/core'
 
 export const useGlobalState = createGlobalState(
@@ -27,10 +27,20 @@ export const useGlobalState = createGlobalState(
 
     // 手动关闭ws连接
     const close = ref(() => {})//对话区域字号
-    const chatFontSize = ref('inherit')
+    const chatFontSize = ref(16)
     // 侧边栏激活的tab
     const activeTab = ref('history-chat')
     const url = ref('http://att.miclink.net/api/xfws')
-    return { userInfo, content, msgRecord, activeChatId, isGenerating, close, showChat, activeTab, url, isReanswer, manualStop, wsClosed, showMask, chatFontSize, loginExpired }
+
+    const url1 = computed(() => {
+      if (userInfo.value&&userInfo.value.id) {
+        if (url.value.indexOf('?assistantId=') >= 0) {
+          return url.value + "&token=" + userInfo.value.token
+        }
+        return url.value + "?token=" + userInfo.value.token
+      }
+      return url.value 
+    })
+    return { userInfo, content, msgRecord, activeChatId, isGenerating, close, showChat, activeTab, url, url1, isReanswer, manualStop, wsClosed, showMask, chatFontSize, loginExpired }
   }
 )
